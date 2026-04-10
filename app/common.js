@@ -1,12 +1,12 @@
 /* =========================
-   FULL ERP SINGLE FILE SYSTEM
+   FULL KONE SINGLE FILE SYSTEM
 ========================= */
 
 function loadLayout(defaultPage = "dashboard") {
 
   document.getElementById("app").innerHTML = `
     <div class="sidebar">
-      <h2>ERP</h2>
+      <h2>KONE</h2>
       <div class="menu">
         <a onclick="loadPage('dashboard')">Dashboard</a>
         <a onclick="loadPage('fabric')">Fabric</a>
