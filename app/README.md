@@ -1,8 +1,8 @@
-# 🏭 Production ERP (Garment / Manufacturing)
+# 🏭 Production KONE (Garment / Manufacturing)
 
 ## 📌 Overview
 
-Production ERP ek simple web-based system hai jo garment/manufacturing workflow ko manage karta hai.
+Production KONE ek simple web-based system hai jo garment/manufacturing workflow ko manage karta hai.
 
 Ye system **pure frontend (HTML, CSS, JavaScript)** pe based hai aur **LocalStorage** use karta hai data store karne ke liye — koi backend required nahi hai.
 
