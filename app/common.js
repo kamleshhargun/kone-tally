@@ -1,3 +1,33 @@
+/* =========================
+   KONE SINGLE FILE SYSTEM
+========================= */
+
+function loadLayout(defaultPage = "dashboard") {
+
+document.getElementById("app").innerHTML = `
+   <div class="sidebar">
+      <h2>ERP</h2>
+      <h2>KONE</h2>
+     <div class="menu">
+       <a onclick="loadPage('dashboard')">Dashboard</a>
+       <a onclick="loadPage('fabric')">Fabric</a>
+       <a onclick="loadPage('cutting')">Cutting</a>
+       <a onclick="loadPage('stitching')">Stitching</a>
+       <a onclick="loadPage('finished')">Finished</a>
+       <a onclick="loadPage('sales')">Sales</a>
+       <a onclick="loadPage('return')">Return</a>
+       <a onclick="loadPage('settings')">Settings</a>
+     </div>
+   </div>
+
+   <div class="main">
+     <div id="content"></div>
+   </div>
+ `;
+
+loadPage(defaultPage);
+}
+
 
 // ==========================
 // STORAGE
