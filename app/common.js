@@ -1,247 +1,241 @@
 /* =========================
-   KONE SINGLE FILE SYSTEM
+   INIT APP
 ========================= */
+window.onload = () => {
+  loadLayout();
+};
 
-// ==========================
-// INIT LAYOUT
-// ==========================
-function initLayout(defaultPage = "dashboard") {
+/* =========================
+   LOAD LAYOUT
+========================= */
+function loadLayout(defaultPage = "dashboard") {
 
-document.getElementById("app").innerHTML = `
-   <div class="sidebar">
-      <h2>ERP</h2>
-      <h2>KONE</h2>
-     <div class="menu">
-       <a onclick="loadPage(event,'dashboard')">Dashboard</a>
-       <a onclick="loadPage(event,'fabric')">Fabric</a>
-       <a onclick="loadPage(event,'cutting')">Cutting</a>
-       <a onclick="loadPage(event,'stitching')">Stitching</a>
-       <a onclick="loadPage(event,'finished')">Finished</a>
-       <a onclick="loadPage(event,'sales')">Sales</a>
-       <a onclick="loadPage(event,'return')">Return</a>
-       <a onclick="loadPage(event,'settings')">Settings</a>
-     </div>
-   </div>
+  let container = document.getElementById("app");
 
-   <div class="main">
-     <div id="content"></div>
-   </div>
-`;
+  container.innerHTML = `
+  <div class="sidebar">
+    <h2>ERP</h2>
+    <div class="menu">
+      <a data-page="dashboard">Dashboard</a>
+      <a data-page="fabric">Fabric</a>
+      <a data-page="cutting">Cutting</a>
+      <a data-page="stitching">Stitching</a>
+      <a data-page="finished">Finished</a>
+      <a data-page="sales">Sales</a>
+      <a data-page="return">Return</a>
+      <a data-page="settings">Settings</a>
+    </div>
+  </div>
 
-loadPage(null, defaultPage);
+  <div class="main">
+    <div id="content"></div>
+  </div>
+  `;
+
+  // MENU CLICK EVENT
+  document.querySelectorAll(".menu a").forEach(a => {
+    a.addEventListener("click", () => {
+      let page = a.getAttribute("data-page");
+      loadPage(page);
+    });
+  });
+
+  loadPage(defaultPage);
 }
 
+/* =========================
+   LOAD PAGE
+========================= */
+function loadPage(page) {
 
-// ==========================
-// STORAGE
-// ==========================
-let purchaseData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
-let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
-let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
-let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
-let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
-let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
-let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+  let content = document.getElementById("content");
+  setActive(page);
 
+  let inventory = getData("inventory", {
+    fabric: 0,
+    cutting: 0,
+    stitching: 0,
+    finished: 0
+  });
 
-// ==========================
-// PAGE LOAD
-// ==========================
-function loadPage(e, page){
+  /* ================= DASHBOARD ================= */
+  if (page === "dashboard") {
 
-  let c = document.getElementById("content");
+    content.innerHTML = `
+    <h2>Dashboard</h2>
 
-  if(e){
-    document.querySelectorAll(".menu a").forEach(a=>a.classList.remove("active"));
-    e.target.classList.add("active");
+    <div class="grid">
+      <div class="card"><p>Fabric</p><h2>${inventory.fabric}</h2></div>
+      <div class="card"><p>Cutting</p><h2>${inventory.cutting}</h2></div>
+      <div class="card"><p>Stitching</p><h2>${inventory.stitching}</h2></div>
+      <div class="card"><p>Finished</p><h2>${inventory.finished}</h2></div>
+    </div>
+    `;
   }
 
+  /* ================= FABRIC ================= */
+  if (page === "fabric") {
+    content.innerHTML = `
+      <h2>Fabric Entry</h2>
+      <input id="fabQty" type="number" placeholder="Enter Fabric Qty">
+      <button onclick="addFabric()">Add</button>
+    `;
+  }
 
-// ==========================
-// DASHBOARD
-// ==========================
-if(page==="dashboard"){
-c.innerHTML=`
-<h2>Dashboard</h2>
+  /* ================= CUTTING ================= */
+  if (page === "cutting") {
+    content.innerHTML = `
+      <h2>Cutting</h2>
+      <input id="cutQty" type="number" placeholder="Qty">
+      <button onclick="moveStock('fabric','cutting','cutQty')">Process</button>
+    `;
+  }
 
-<div class="grid">
-<div class="card"><p>Cutting</p><h2 id="cut"></h2></div>
-<div class="card"><p>Stitching</p><h2 id="st"></h2></div>
-<div class="card"><p>Sales</p><h2 id="sa"></h2></div>
-<div class="card"><p>Inventory</p><h2 id="inv"></h2></div>
-</div>
+  /* ================= STITCHING ================= */
+  if (page === "stitching") {
+    content.innerHTML = `
+      <h2>Stitching</h2>
+      <input id="stQty" type="number" placeholder="Qty">
+      <button onclick="moveStock('cutting','stitching','stQty')">Process</button>
+    `;
+  }
 
-<table>
-<thead><tr><th>Item</th><th>Stock</th></tr></thead>
-<tbody id="stock"></tbody>
-</table>
-`;
+  /* ================= FINISHED ================= */
+  if (page === "finished") {
+    content.innerHTML = `
+      <h2>Finished</h2>
+      <input id="finQty" type="number" placeholder="Qty">
+      <button onclick="moveStock('stitching','finished','finQty')">Complete</button>
+    `;
+  }
 
-document.getElementById("cut").innerText =
-cuttingData.reduce((a,b)=>a+(b.rows?.length||0),0);
+  /* ================= SALES ================= */
+  if (page === "sales") {
+    content.innerHTML = `
+      <h2>Sales</h2>
+      <input id="saleQty" type="number" placeholder="Sell Qty">
+      <button onclick="sellStock()">Sell</button>
+    `;
+  }
 
-document.getElementById("st").innerText =
-stitchingData.reduce((a,b)=>a+(b.entries?.length||0),0);
+  /* ================= RETURN ================= */
+  if (page === "return") {
+    content.innerHTML = `
+      <h2>Return</h2>
+      <input id="retQty" type="number" placeholder="Return Qty">
+      <button onclick="returnStock()">Return</button>
+    `;
+  }
 
-document.getElementById("sa").innerText =
-salesData.length;
-
-let inv=0;
-for(let k in inventory) inv+=inventory[k];
-document.getElementById("inv").innerText=inv;
-
-let t=document.getElementById("stock");
-t.innerHTML="";
-for(let k in inventory){
-t.innerHTML+=`<tr><td>${k}</td><td>${inventory[k]}</td></tr>`;
-}
-}
-
-
-// ==========================
-// FABRIC
-// ==========================
-if(page==="fabric"){
-c.innerHTML=`
-<h2>Fabric</h2>
-<input id="party" placeholder="Party">
-<input id="invoice" placeholder="Invoice">
-
-<button onclick="addFabric()">+ Add</button>
-<div id="box"></div>
-
-<button onclick="saveFabric()">Save</button>
-`;
-}
-
-
-// ==========================
-// CUTTING
-// ==========================
-if(page==="cutting"){
-c.innerHTML=`
-<h2>Cutting</h2>
-<button onclick="addCut()">+ Add</button>
-<div id="cutBox"></div>
-<button onclick="saveCut()">Save</button>
-`;
+  /* ================= SETTINGS ================= */
+  if (page === "settings") {
+    content.innerHTML = `
+      <h2>Settings</h2>
+      <button onclick="clearAll()">Clear Data</button>
+    `;
+  }
 }
 
+/* =========================
+   ACTIVE MENU
+========================= */
+function setActive(page) {
+  document.querySelectorAll(".menu a").forEach(a => {
+    a.classList.remove("active");
 
-// ==========================
-// STITCHING
-// ==========================
-if(page==="stitching"){
-c.innerHTML=`
-<h2>Stitching</h2>
-<button onclick="addStitch()">+ Add</button>
-<div id="stBox"></div>
-<button onclick="saveStitch()">Save</button>
-`;
+    if (a.getAttribute("data-page") === page) {
+      a.classList.add("active");
+    }
+  });
 }
 
+/* =========================
+   CORE FUNCTIONS
+========================= */
 
-// ==========================
-// FINISHED
-// ==========================
-if(page==="finished"){
-c.innerHTML=`
-<h2>Finished</h2>
-<button onclick="addFinish()">+ Add</button>
-<div id="finBox"></div>
-<button onclick="saveFinish()">Save</button>
-`;
+function addFabric() {
+  let qty = Number(document.getElementById("fabQty").value);
+  let inv = getInventory();
+
+  inv.fabric += qty;
+  setInventory(inv);
+
+  alert("Fabric Added");
+  loadPage("dashboard");
 }
 
+function moveStock(from, to, inputId) {
+  let qty = Number(document.getElementById(inputId).value);
+  let inv = getInventory();
 
-// ==========================
-// SALES
-// ==========================
-if(page==="sales"){
-c.innerHTML=`
-<h2>Sales</h2>
-<button onclick="addSale()">+ Add</button>
-<div id="saleBox"></div>
-<button onclick="saveSale()">Save</button>
-`;
+  if (inv[from] < qty) {
+    alert("Not enough stock");
+    return;
+  }
+
+  inv[from] -= qty;
+  inv[to] += qty;
+
+  setInventory(inv);
+
+  alert("Moved Successfully");
+  loadPage("dashboard");
 }
 
+function sellStock() {
+  let qty = Number(document.getElementById("saleQty").value);
+  let inv = getInventory();
 
-// ==========================
-// RETURN
-// ==========================
-if(page==="return"){
-c.innerHTML=`
-<h2>Return</h2>
-<button onclick="addReturn()">+ Add</button>
-<div id="retBox"></div>
-<button onclick="saveReturn()">Save</button>
-`;
+  if (inv.finished < qty) {
+    alert("Stock not available");
+    return;
+  }
+
+  inv.finished -= qty;
+  setInventory(inv);
+
+  alert("Sale Done");
+  loadPage("dashboard");
 }
 
+function returnStock() {
+  let qty = Number(document.getElementById("retQty").value);
+  let inv = getInventory();
 
-// ==========================
-// SETTINGS
-// ==========================
-if(page==="settings"){
-c.innerHTML=`
-<h2>Settings</h2>
-<button onclick="resetData()">Reset All Data</button>
-`;
+  inv.finished += qty;
+  setInventory(inv);
+
+  alert("Returned");
+  loadPage("dashboard");
 }
 
+/* =========================
+   STORAGE SYSTEM
+========================= */
+
+function getInventory() {
+  return getData("inventory", {
+    fabric: 0,
+    cutting: 0,
+    stitching: 0,
+    finished: 0
+  });
 }
 
-
-// ==========================
-// FABRIC LOGIC
-// ==========================
-function addFabric(){
-let d=document.createElement("div");
-d.innerHTML=`
-<input class="name" placeholder="Fabric">
-<input class="meter" placeholder="Meter">
-<input class="rate" placeholder="Rate">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("box").appendChild(d);
+function setInventory(data) {
+  setData("inventory", data);
 }
 
-function saveFabric(){
-
-let fabrics=[];
-
-document.querySelectorAll("#box div").forEach(r=>{
-let name=r.querySelector(".name").value;
-let meter=parseFloat(r.querySelector(".meter").value);
-
-if(name && meter){
-fabrics.push({name,meter});
-}
-});
-
-if(fabrics.length===0){alert("Fill");return;}
-
-purchaseData.push({fabrics});
-localStorage.setItem("fabricInvoices",JSON.stringify(purchaseData));
-
-alert("Saved ✅");
+function getData(key, def = {}) {
+  return JSON.parse(localStorage.getItem(key)) || def;
 }
 
-
-// ==========================
-// RESET
-// ==========================
-function resetData(){
-if(confirm("Reset All Data?")){
-localStorage.clear();
-location.reload();
-}
+function setData(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-
-// ==========================
-// AUTO START
-// ==========================
-window.onload = function(){
-initLayout();
-};
+function clearAll() {
+  localStorage.clear();
+  alert("All Data Cleared");
+  loadPage("dashboard");
+}
