@@ -1,317 +1,360 @@
-/* =========================
-   FULL KONE SINGLE FILE SYSTEM
-========================= */
 
-function loadLayout(defaultPage = "dashboard") {
+// ==========================
+// STORAGE
+// ==========================
+let purchaseData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
+let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
+let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
+let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
+let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
+let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 
-  document.getElementById("app").innerHTML = `
-    <div class="sidebar">
-      <h2>KONE</h2>
-      <div class="menu">
-        <a onclick="loadPage('dashboard')">Dashboard</a>
-        <a onclick="loadPage('fabric')">Fabric</a>
-        <a onclick="loadPage('cutting')">Cutting</a>
-        <a onclick="loadPage('stitching')">Stitching</a>
-        <a onclick="loadPage('finished')">Finished</a>
-        <a onclick="loadPage('sales')">Sales</a>
-        <a onclick="loadPage('return')">Return</a>
-        <a onclick="loadPage('settings')">Settings</a>
-      </div>
-    </div>
 
-    <div class="main">
-      <div id="content"></div>
-    </div>
-  `;
-
-  loadPage(defaultPage);
+// ==========================
+// PAGE LOAD
+// ==========================
+function loadLayout(){
+  loadPage("dashboard");
 }
 
-/* =========================
-   STORAGE
-========================= */
-function getData(k,d){return JSON.parse(localStorage.getItem(k))||d;}
-function setData(k,d){localStorage.setItem(k,JSON.stringify(d));}
-
-/* =========================
-   ACTIVE MENU
-========================= */
-function setActive(page){
-  document.querySelectorAll(".menu a").forEach(a=>{
-    a.classList.remove("active");
-    if(a.innerText.toLowerCase()===page) a.classList.add("active");
-  });
-}
-
-/* =========================
-   PAGE ROUTER
-========================= */
 function loadPage(page){
-
   let c = document.getElementById("content");
-  setActive(page);
 
-  /* ===== DASHBOARD ===== */
-  if(page==="dashboard"){
-    let inv=getData("inventory",{});
-    let total=Object.values(inv).reduce((a,b)=>a+b,0);
+  document.querySelectorAll(".menu a").forEach(a=>a.classList.remove("active"));
+  event.target.classList.add("active");
 
-    c.innerHTML=`
-      <h2>Dashboard</h2>
-      <div class="grid">
-        <div class="card"><p>Inventory</p><h2>${total}</h2></div>
-      </div>
 
-      <table>
-      <tr><th>Item</th><th>Stock</th></tr>
-      ${Object.keys(inv).map(k=>`<tr><td>${k}</td><td>${inv[k]}</td></tr>`).join("")}
-      </table>
-    `;
-  }
+// ==========================
+// DASHBOARD
+// ==========================
+if(page==="dashboard"){
+c.innerHTML=`
+<h2>Dashboard</h2>
 
-  /* ===== FABRIC ===== */
-  if(page==="fabric"){
-    c.innerHTML=`
-      <h2>Fabric Purchase</h2>
+<div class="grid">
+<div class="card"><p>Cutting</p><h2 id="cut"></h2></div>
+<div class="card"><p>Stitching</p><h2 id="st"></h2></div>
+<div class="card"><p>Sales</p><h2 id="sa"></h2></div>
+<div class="card"><p>Inventory</p><h2 id="inv"></h2></div>
+</div>
 
-      <input id="party" placeholder="Party">
-      <input id="invoice" placeholder="Invoice">
-      <input type="date" id="date">
+<table><thead><tr><th>Item</th><th>Stock</th></tr></thead>
+<tbody id="stock"></tbody></table>
+`;
 
-      <div id="fabBox"></div>
+document.getElementById("cut").innerText =
+cuttingData.reduce((a,b)=>a+(b.totalPcs||0),0);
 
-      <button onclick="addFabric()">+ Add Fabric</button>
-      <button onclick="saveFabric()">Save</button>
+document.getElementById("st").innerText =
+stitchingData.reduce((a,b)=>a+(b.total||0),0);
 
-      <table>
-        <tr><th>Party</th><th>Total</th></tr>
-        <tbody id="fabTable"></tbody>
-      </table>
-    `;
-    renderFabric();
-  }
+document.getElementById("sa").innerText =
+salesData.reduce((a,b)=>a+(b.total||0),0);
 
-  /* ===== CUTTING ===== */
-  if(page==="cutting"){
-    c.innerHTML=`
-      <h2>Cutting</h2>
+let inv=0;
+for(let k in inventory) inv+=inventory[k];
+document.getElementById("inv").innerText=inv;
 
-      <input type="date" id="date">
-      <button onclick="addCut()">+ Add</button>
-      <div id="cutBox"></div>
-      <button onclick="saveCut()">Save</button>
-
-      <table><tbody id="cutTable"></tbody></table>
-    `;
-    renderCut();
-  }
-
-  /* ===== STITCHING ===== */
-  if(page==="stitching"){
-    c.innerHTML=`
-      <h2>Stitching</h2>
-
-      <input id="labour" placeholder="Labour">
-      <input type="date" id="date">
-
-      <div id="stitchBox"></div>
-      <button onclick="addStitch()">+ Add</button>
-      <button onclick="saveStitch()">Save</button>
-
-      <table><tbody id="stitchTable"></tbody></table>
-    `;
-    renderStitch();
-  }
-
-  /* ===== FINISHED ===== */
-  if(page==="finished"){
-    c.innerHTML=`
-      <h2>Finished</h2>
-
-      <input type="date" id="date">
-      <input id="labour" placeholder="Labour">
-
-      <div id="finBox"></div>
-      <button onclick="loadPending()">Load Pending</button>
-      <button onclick="saveFinished()">Save</button>
-
-      <table><tbody id="finTable"></tbody></table>
-    `;
-    renderFinished();
-  }
-
-  /* ===== SALES ===== */
-  if(page==="sales"){
-    c.innerHTML=`
-      <h2>Sales</h2>
-
-      <input type="date" id="date">
-      <input id="order" placeholder="Order ID">
-
-      <div id="saleBox"></div>
-      <button onclick="addSale()">+ Add</button>
-      <button onclick="saveSale()">Save</button>
-
-      <table><tbody id="saleTable"></tbody></table>
-    `;
-    renderSales();
-  }
-
-  /* ===== RETURN ===== */
-  if(page==="return"){
-    c.innerHTML=`
-      <h2>Return</h2>
-
-      <input type="date" id="date">
-      <div id="retBox"></div>
-
-      <button onclick="addReturn()">+ Add</button>
-      <button onclick="saveReturn()">Save</button>
-    `;
-  }
-
-  /* ===== SETTINGS ===== */
-  if(page==="settings"){
-    c.innerHTML=`
-      <h2>Settings</h2>
-      <button onclick="localStorage.clear();alert('Cleared')">Clear Data</button>
-    `;
-  }
+let t=document.getElementById("stock");
+for(let k in inventory){
+t.innerHTML+=`<tr><td>${k}</td><td>${inventory[k]}</td></tr>`;
+}
 }
 
-/* =========================
-   FABRIC LOGIC
-========================= */
+
+// ==========================
+// FABRIC PURCHASE
+// ==========================
+if(page==="fabric"){
+c.innerHTML=`
+<h2>Fabric</h2>
+<input id="party" placeholder="Party">
+<input id="invoice" placeholder="Invoice">
+
+<button onclick="addFabric()">+ Add</button>
+<div id="box"></div>
+
+<button onclick="saveFabric()">Save</button>
+`;
+}
+
+}
+
+
+// ==========================
+// FABRIC LOGIC
+// ==========================
 function addFabric(){
-  document.getElementById("fabBox").innerHTML+=`
-    <input class="fName" placeholder="Fabric">
-    <input class="fMeter" placeholder="Meter">
-  `;
+let d=document.createElement("div");
+d.innerHTML=`
+<input class="name" placeholder="Fabric">
+<input class="meter" placeholder="Meter">
+<input class="rate" placeholder="Rate">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("box").appendChild(d);
 }
 
 function saveFabric(){
-  let data=getData("fabricData",[]);
-  let total=0;
 
-  document.querySelectorAll(".fMeter").forEach(i=>{
-    total+=parseFloat(i.value||0);
-  });
+let fabrics=[];
 
-  data.push({total});
-  setData("fabricData",data);
-  renderFabric();
+document.querySelectorAll("#box div").forEach(r=>{
+let name=r.querySelector(".name").value;
+let meter=parseFloat(r.querySelector(".meter").value);
+
+if(name && meter){
+fabrics.push({name,meter});
+}
+});
+
+if(fabrics.length===0){alert("Fill");return;}
+
+purchaseData.push({fabrics});
+localStorage.setItem("fabricInvoices",JSON.stringify(purchaseData));
 }
 
-function renderFabric(){
-  let data=getData("fabricData",[]);
-  let t=document.getElementById("fabTable");
-  if(!t)return;
 
-  t.innerHTML=data.map(d=>`<tr><td>Party</td><td>${d.total}</td></tr>`).join("");
+// ==========================
+// CUTTING (FABRIC → SKU)
+// ==========================
+function getFabricStock(){
+let s={};
+
+purchaseData.forEach(p=>{
+p.fabrics.forEach(f=>{
+if(!s[f.name]) s[f.name]=0;
+s[f.name]+=f.meter;
+});
+});
+
+cuttingData.forEach(c=>{
+c.rows.forEach(r=>{
+if(s[r.fabric]) s[r.fabric]-=r.meter;
+});
+});
+
+return s;
 }
 
-/* =========================
-   CUTTING LOGIC
-========================= */
 function addCut(){
-  document.getElementById("cutBox").innerHTML+=`
-    <input class="cutQty" placeholder="Qty">
-  `;
+let stock=getFabricStock();
+
+let d=document.createElement("div");
+d.innerHTML=`
+<select class="fabric">
+${Object.keys(stock).map(f=>`<option>${f}</option>`)}
+</select>
+<input class="sku" placeholder="SKU">
+<input class="qty" placeholder="Qty">
+<input class="meter" placeholder="Meter">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("cutBox").appendChild(d);
 }
 
 function saveCut(){
-  let data=getData("cutData",[]);
-  let total=0;
 
-  document.querySelectorAll(".cutQty").forEach(i=>{
-    total+=parseInt(i.value||0);
-  });
+let rows=[];
 
-  data.push({total});
-  setData("cutData",data);
-  renderCut();
+document.querySelectorAll("#cutBox div").forEach(r=>{
+let fabric=r.querySelector(".fabric").value;
+let sku=r.querySelector(".sku").value;
+let qty=parseInt(r.querySelector(".qty").value);
+let meter=parseFloat(r.querySelector(".meter").value);
+
+if(fabric && sku && qty && meter){
+rows.push({fabric,sku,qty,meter});
+}
+});
+
+cuttingData.push({rows});
+localStorage.setItem("cuttingData",JSON.stringify(cuttingData));
 }
 
-function renderCut(){
-  let data=getData("cutData",[]);
-  let t=document.getElementById("cutTable");
-  if(!t)return;
 
-  t.innerHTML=data.map(d=>`<tr><td>${d.total}</td></tr>`).join("");
+// ==========================
+// STITCHING (SKU PENDING)
+// ==========================
+function getPendingSKU(){
+
+let s={};
+
+cuttingData.forEach(c=>{
+c.rows.forEach(r=>{
+if(!s[r.sku]) s[r.sku]=0;
+s[r.sku]+=r.qty;
+});
+});
+
+stitchingData.forEach(st=>{
+st.entries.forEach(e=>{
+if(s[e.item]) s[e.item]-=e.qty;
+});
+});
+
+return s;
 }
 
-/* =========================
-   STITCHING LOGIC
-========================= */
 function addStitch(){
-  document.getElementById("stitchBox").innerHTML+=`
-    <input class="stQty" placeholder="Qty">
-  `;
+let stock=getPendingSKU();
+
+let d=document.createElement("div");
+d.innerHTML=`
+<select class="item">
+${Object.keys(stock).map(k=>`<option>${k}</option>`)}
+</select>
+<input class="qty">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("stBox").appendChild(d);
 }
 
 function saveStitch(){
-  let data=getData("stitchData",[]);
-  let total=0;
 
-  document.querySelectorAll(".stQty").forEach(i=>{
-    total+=parseInt(i.value||0);
-  });
+let entries=[];
 
-  data.push({total});
-  setData("stitchData",data);
-  renderStitch();
+document.querySelectorAll("#stBox div").forEach(r=>{
+let item=r.querySelector(".item").value;
+let qty=parseInt(r.querySelector(".qty").value);
+
+if(item && qty){
+entries.push({item,qty});
+}
+});
+
+stitchingData.push({entries});
+localStorage.setItem("stitchingData",JSON.stringify(stitchingData));
 }
 
-function renderStitch(){
-  let data=getData("stitchData",[]);
-  let t=document.getElementById("stitchTable");
-  if(!t)return;
 
-  t.innerHTML=data.map(d=>`<tr><td>${d.total}</td></tr>`).join("");
+// ==========================
+// FINISHED (INVENTORY ADD)
+// ==========================
+function getPendingFinish(){
+
+let s={};
+
+stitchingData.forEach(st=>{
+st.entries.forEach(e=>{
+if(!s[e.item]) s[e.item]=0;
+s[e.item]+=e.qty;
+});
+});
+
+finishedData.forEach(f=>{
+f.entries.forEach(e=>{
+if(s[e.item]) s[e.item]-=e.qty;
+});
+});
+
+return s;
 }
 
-/* =========================
-   FINISHED + INVENTORY
-========================= */
-function saveFinished(){
-  let inv=getData("inventory",{});
-  inv["item"]=(inv["item"]||0)+10;
-  setData("inventory",inv);
-  alert("Added to inventory");
+function addFinish(){
+let stock=getPendingFinish();
+
+let d=document.createElement("div");
+d.innerHTML=`
+<select class="item">
+${Object.keys(stock).map(k=>`<option>${k}</option>`)}
+</select>
+<input class="qty">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("finBox").appendChild(d);
 }
 
-/* =========================
-   SALES
-========================= */
+function saveFinish(){
+
+let entries=[];
+
+document.querySelectorAll("#finBox div").forEach(r=>{
+let item=r.querySelector(".item").value;
+let qty=parseInt(r.querySelector(".qty").value);
+
+if(item && qty){
+entries.push({item,qty});
+
+if(!inventory[item]) inventory[item]=0;
+inventory[item]+=qty;
+}
+});
+
+finishedData.push({entries});
+
+localStorage.setItem("finishedData",JSON.stringify(finishedData));
+localStorage.setItem("inventory",JSON.stringify(inventory));
+}
+
+
+// ==========================
+// SALES (INVENTORY MINUS)
+// ==========================
 function addSale(){
-  document.getElementById("saleBox").innerHTML+=`
-    <input class="saleQty" placeholder="Qty">
-  `;
+let d=document.createElement("div");
+d.innerHTML=`
+<select class="item">
+${Object.keys(inventory).map(i=>`<option>${i}</option>`)}
+</select>
+<input class="qty">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("saleBox").appendChild(d);
 }
 
 function saveSale(){
-  let inv=getData("inventory",{});
-  document.querySelectorAll(".saleQty").forEach(i=>{
-    inv["item"]=(inv["item"]||0)-parseInt(i.value||0);
-  });
-  setData("inventory",inv);
-  alert("Sale saved");
+
+let items=[];
+
+document.querySelectorAll("#saleBox div").forEach(r=>{
+let item=r.querySelector(".item").value;
+let qty=parseInt(r.querySelector(".qty").value);
+
+if(item && qty){
+items.push({item,qty});
+inventory[item]-=qty;
+}
+});
+
+salesData.push({items});
+
+localStorage.setItem("salesData",JSON.stringify(salesData));
+localStorage.setItem("inventory",JSON.stringify(inventory));
 }
 
-/* =========================
-   RETURN
-========================= */
+
+// ==========================
+// RETURN (ADD BACK)
+// ==========================
 function addReturn(){
-  document.getElementById("retBox").innerHTML+=`
-    <input class="retQty" placeholder="Qty">
-  `;
+let d=document.createElement("div");
+d.innerHTML=`
+<select class="item">
+${Object.keys(inventory).map(i=>`<option>${i}</option>`)}
+</select>
+<input class="qty">
+<button onclick="this.parentElement.remove()">X</button>`;
+document.getElementById("retBox").appendChild(d);
 }
 
 function saveReturn(){
-  let inv=getData("inventory",{});
-  document.querySelectorAll(".retQty").forEach(i=>{
-    inv["item"]=(inv["item"]||0)+parseInt(i.value||0);
-  });
-  setData("inventory",inv);
-  alert("Return added");
+
+document.querySelectorAll("#retBox div").forEach(r=>{
+let item=r.querySelector(".item").value;
+let qty=parseInt(r.querySelector(".qty").value);
+
+if(item && qty){
+inventory[item]+=qty;
+}
+});
+
+localStorage.setItem("inventory",JSON.stringify(inventory));
+}
+
+
+// ==========================
+// SETTINGS
+// ==========================
+function resetData(){
+if(confirm("Reset All Data?")){
+localStorage.clear();
+location.reload();
+}
 }
