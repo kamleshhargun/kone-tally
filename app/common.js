@@ -2,30 +2,33 @@
    KONE SINGLE FILE SYSTEM
 ========================= */
 
-function loadLayout(defaultPage = "dashboard") {
+// ==========================
+// INIT LAYOUT
+// ==========================
+function initLayout(defaultPage = "dashboard") {
 
 document.getElementById("app").innerHTML = `
    <div class="sidebar">
       <h2>ERP</h2>
       <h2>KONE</h2>
      <div class="menu">
-       <a onclick="loadPage('dashboard')">Dashboard</a>
-       <a onclick="loadPage('fabric')">Fabric</a>
-       <a onclick="loadPage('cutting')">Cutting</a>
-       <a onclick="loadPage('stitching')">Stitching</a>
-       <a onclick="loadPage('finished')">Finished</a>
-       <a onclick="loadPage('sales')">Sales</a>
-       <a onclick="loadPage('return')">Return</a>
-       <a onclick="loadPage('settings')">Settings</a>
+       <a onclick="loadPage(event,'dashboard')">Dashboard</a>
+       <a onclick="loadPage(event,'fabric')">Fabric</a>
+       <a onclick="loadPage(event,'cutting')">Cutting</a>
+       <a onclick="loadPage(event,'stitching')">Stitching</a>
+       <a onclick="loadPage(event,'finished')">Finished</a>
+       <a onclick="loadPage(event,'sales')">Sales</a>
+       <a onclick="loadPage(event,'return')">Return</a>
+       <a onclick="loadPage(event,'settings')">Settings</a>
      </div>
    </div>
 
    <div class="main">
      <div id="content"></div>
    </div>
- `;
+`;
 
-loadPage(defaultPage);
+loadPage(null, defaultPage);
 }
 
 
@@ -44,15 +47,14 @@ let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 // ==========================
 // PAGE LOAD
 // ==========================
-function loadLayout(){
-  loadPage("dashboard");
-}
+function loadPage(e, page){
 
-function loadPage(page){
   let c = document.getElementById("content");
 
-  document.querySelectorAll(".menu a").forEach(a=>a.classList.remove("active"));
-  event.target.classList.add("active");
+  if(e){
+    document.querySelectorAll(".menu a").forEach(a=>a.classList.remove("active"));
+    e.target.classList.add("active");
+  }
 
 
 // ==========================
@@ -69,24 +71,27 @@ c.innerHTML=`
 <div class="card"><p>Inventory</p><h2 id="inv"></h2></div>
 </div>
 
-<table><thead><tr><th>Item</th><th>Stock</th></tr></thead>
-<tbody id="stock"></tbody></table>
+<table>
+<thead><tr><th>Item</th><th>Stock</th></tr></thead>
+<tbody id="stock"></tbody>
+</table>
 `;
 
 document.getElementById("cut").innerText =
-cuttingData.reduce((a,b)=>a+(b.totalPcs||0),0);
+cuttingData.reduce((a,b)=>a+(b.rows?.length||0),0);
 
 document.getElementById("st").innerText =
-stitchingData.reduce((a,b)=>a+(b.total||0),0);
+stitchingData.reduce((a,b)=>a+(b.entries?.length||0),0);
 
 document.getElementById("sa").innerText =
-salesData.reduce((a,b)=>a+(b.total||0),0);
+salesData.length;
 
 let inv=0;
 for(let k in inventory) inv+=inventory[k];
 document.getElementById("inv").innerText=inv;
 
 let t=document.getElementById("stock");
+t.innerHTML="";
 for(let k in inventory){
 t.innerHTML+=`<tr><td>${k}</td><td>${inventory[k]}</td></tr>`;
 }
@@ -94,7 +99,7 @@ t.innerHTML+=`<tr><td>${k}</td><td>${inventory[k]}</td></tr>`;
 
 
 // ==========================
-// FABRIC PURCHASE
+// FABRIC
 // ==========================
 if(page==="fabric"){
 c.innerHTML=`
@@ -106,6 +111,82 @@ c.innerHTML=`
 <div id="box"></div>
 
 <button onclick="saveFabric()">Save</button>
+`;
+}
+
+
+// ==========================
+// CUTTING
+// ==========================
+if(page==="cutting"){
+c.innerHTML=`
+<h2>Cutting</h2>
+<button onclick="addCut()">+ Add</button>
+<div id="cutBox"></div>
+<button onclick="saveCut()">Save</button>
+`;
+}
+
+
+// ==========================
+// STITCHING
+// ==========================
+if(page==="stitching"){
+c.innerHTML=`
+<h2>Stitching</h2>
+<button onclick="addStitch()">+ Add</button>
+<div id="stBox"></div>
+<button onclick="saveStitch()">Save</button>
+`;
+}
+
+
+// ==========================
+// FINISHED
+// ==========================
+if(page==="finished"){
+c.innerHTML=`
+<h2>Finished</h2>
+<button onclick="addFinish()">+ Add</button>
+<div id="finBox"></div>
+<button onclick="saveFinish()">Save</button>
+`;
+}
+
+
+// ==========================
+// SALES
+// ==========================
+if(page==="sales"){
+c.innerHTML=`
+<h2>Sales</h2>
+<button onclick="addSale()">+ Add</button>
+<div id="saleBox"></div>
+<button onclick="saveSale()">Save</button>
+`;
+}
+
+
+// ==========================
+// RETURN
+// ==========================
+if(page==="return"){
+c.innerHTML=`
+<h2>Return</h2>
+<button onclick="addReturn()">+ Add</button>
+<div id="retBox"></div>
+<button onclick="saveReturn()">Save</button>
+`;
+}
+
+
+// ==========================
+// SETTINGS
+// ==========================
+if(page==="settings"){
+c.innerHTML=`
+<h2>Settings</h2>
+<button onclick="resetData()">Reset All Data</button>
 `;
 }
 
@@ -142,245 +223,13 @@ if(fabrics.length===0){alert("Fill");return;}
 
 purchaseData.push({fabrics});
 localStorage.setItem("fabricInvoices",JSON.stringify(purchaseData));
+
+alert("Saved ✅");
 }
 
 
 // ==========================
-// CUTTING (FABRIC → SKU)
-// ==========================
-function getFabricStock(){
-let s={};
-
-purchaseData.forEach(p=>{
-p.fabrics.forEach(f=>{
-if(!s[f.name]) s[f.name]=0;
-s[f.name]+=f.meter;
-});
-});
-
-cuttingData.forEach(c=>{
-c.rows.forEach(r=>{
-if(s[r.fabric]) s[r.fabric]-=r.meter;
-});
-});
-
-return s;
-}
-
-function addCut(){
-let stock=getFabricStock();
-
-let d=document.createElement("div");
-d.innerHTML=`
-<select class="fabric">
-${Object.keys(stock).map(f=>`<option>${f}</option>`)}
-</select>
-<input class="sku" placeholder="SKU">
-<input class="qty" placeholder="Qty">
-<input class="meter" placeholder="Meter">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("cutBox").appendChild(d);
-}
-
-function saveCut(){
-
-let rows=[];
-
-document.querySelectorAll("#cutBox div").forEach(r=>{
-let fabric=r.querySelector(".fabric").value;
-let sku=r.querySelector(".sku").value;
-let qty=parseInt(r.querySelector(".qty").value);
-let meter=parseFloat(r.querySelector(".meter").value);
-
-if(fabric && sku && qty && meter){
-rows.push({fabric,sku,qty,meter});
-}
-});
-
-cuttingData.push({rows});
-localStorage.setItem("cuttingData",JSON.stringify(cuttingData));
-}
-
-
-// ==========================
-// STITCHING (SKU PENDING)
-// ==========================
-function getPendingSKU(){
-
-let s={};
-
-cuttingData.forEach(c=>{
-c.rows.forEach(r=>{
-if(!s[r.sku]) s[r.sku]=0;
-s[r.sku]+=r.qty;
-});
-});
-
-stitchingData.forEach(st=>{
-st.entries.forEach(e=>{
-if(s[e.item]) s[e.item]-=e.qty;
-});
-});
-
-return s;
-}
-
-function addStitch(){
-let stock=getPendingSKU();
-
-let d=document.createElement("div");
-d.innerHTML=`
-<select class="item">
-${Object.keys(stock).map(k=>`<option>${k}</option>`)}
-</select>
-<input class="qty">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("stBox").appendChild(d);
-}
-
-function saveStitch(){
-
-let entries=[];
-
-document.querySelectorAll("#stBox div").forEach(r=>{
-let item=r.querySelector(".item").value;
-let qty=parseInt(r.querySelector(".qty").value);
-
-if(item && qty){
-entries.push({item,qty});
-}
-});
-
-stitchingData.push({entries});
-localStorage.setItem("stitchingData",JSON.stringify(stitchingData));
-}
-
-
-// ==========================
-// FINISHED (INVENTORY ADD)
-// ==========================
-function getPendingFinish(){
-
-let s={};
-
-stitchingData.forEach(st=>{
-st.entries.forEach(e=>{
-if(!s[e.item]) s[e.item]=0;
-s[e.item]+=e.qty;
-});
-});
-
-finishedData.forEach(f=>{
-f.entries.forEach(e=>{
-if(s[e.item]) s[e.item]-=e.qty;
-});
-});
-
-return s;
-}
-
-function addFinish(){
-let stock=getPendingFinish();
-
-let d=document.createElement("div");
-d.innerHTML=`
-<select class="item">
-${Object.keys(stock).map(k=>`<option>${k}</option>`)}
-</select>
-<input class="qty">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("finBox").appendChild(d);
-}
-
-function saveFinish(){
-
-let entries=[];
-
-document.querySelectorAll("#finBox div").forEach(r=>{
-let item=r.querySelector(".item").value;
-let qty=parseInt(r.querySelector(".qty").value);
-
-if(item && qty){
-entries.push({item,qty});
-
-if(!inventory[item]) inventory[item]=0;
-inventory[item]+=qty;
-}
-});
-
-finishedData.push({entries});
-
-localStorage.setItem("finishedData",JSON.stringify(finishedData));
-localStorage.setItem("inventory",JSON.stringify(inventory));
-}
-
-
-// ==========================
-// SALES (INVENTORY MINUS)
-// ==========================
-function addSale(){
-let d=document.createElement("div");
-d.innerHTML=`
-<select class="item">
-${Object.keys(inventory).map(i=>`<option>${i}</option>`)}
-</select>
-<input class="qty">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("saleBox").appendChild(d);
-}
-
-function saveSale(){
-
-let items=[];
-
-document.querySelectorAll("#saleBox div").forEach(r=>{
-let item=r.querySelector(".item").value;
-let qty=parseInt(r.querySelector(".qty").value);
-
-if(item && qty){
-items.push({item,qty});
-inventory[item]-=qty;
-}
-});
-
-salesData.push({items});
-
-localStorage.setItem("salesData",JSON.stringify(salesData));
-localStorage.setItem("inventory",JSON.stringify(inventory));
-}
-
-
-// ==========================
-// RETURN (ADD BACK)
-// ==========================
-function addReturn(){
-let d=document.createElement("div");
-d.innerHTML=`
-<select class="item">
-${Object.keys(inventory).map(i=>`<option>${i}</option>`)}
-</select>
-<input class="qty">
-<button onclick="this.parentElement.remove()">X</button>`;
-document.getElementById("retBox").appendChild(d);
-}
-
-function saveReturn(){
-
-document.querySelectorAll("#retBox div").forEach(r=>{
-let item=r.querySelector(".item").value;
-let qty=parseInt(r.querySelector(".qty").value);
-
-if(item && qty){
-inventory[item]+=qty;
-}
-});
-
-localStorage.setItem("inventory",JSON.stringify(inventory));
-}
-
-
-// ==========================
-// SETTINGS
+// RESET
 // ==========================
 function resetData(){
 if(confirm("Reset All Data?")){
@@ -388,3 +237,11 @@ localStorage.clear();
 location.reload();
 }
 }
+
+
+// ==========================
+// AUTO START
+// ==========================
+window.onload = function(){
+initLayout();
+};
