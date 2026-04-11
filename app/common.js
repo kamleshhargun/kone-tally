@@ -1,6 +1,7 @@
 /* =========================
    GLOBAL DATA (ONLY ONCE)
 ========================= */
+
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
@@ -126,7 +127,7 @@ function loadPage(page) {
       `;
     }
   }
-}
+
 
   /* ================= FABRIC ================= */
 else if (page === "fabric") {
@@ -858,7 +859,7 @@ function clearReturnForm() {
 else if (page === "settings") {
   content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
 }
-}
+
 
 /* =========================
    KEYBOARD SHORTCUT
