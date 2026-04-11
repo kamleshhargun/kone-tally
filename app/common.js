@@ -239,14 +239,12 @@ else if (page === "stitching") {
 }
 
 /* ===== GLOBAL DATA (NO DUPLICATE DECLARE) ===== */
-let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
 let stitchEditIndex = null;
 
 /* ===== GET READY STOCK ===== */
 function getReadyStock() {
 
   let stock = {};
-  let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 
   cuttingData.forEach(c=>{
     c.rows.forEach(r=>{
@@ -395,7 +393,6 @@ else if (page === "finished") {
 }
 
 /* ===== FINISHED DATA ===== */
-let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
 let finishedEditIndex = null;
 
 /* ===== LOAD LABOURS ===== */
@@ -505,7 +502,6 @@ else if (page === "sales") {
 }
 
 /* ===== DATA ===== */
-let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
 let saleEditIndex = null;
 
 /* ===== ADD ROW ===== */
@@ -723,7 +719,6 @@ else if (page === "return") {
 }
 
 /* ===== DATA ===== */
-let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
 let returnEditIndex = null;
 
 /* ===== ADD ROW ===== */
@@ -1049,7 +1044,6 @@ function deleteInvoice(i) {
 /* =========================
    CUTTING MODULE
 ========================= */
-let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 
 function getStock() {
 
