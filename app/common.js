@@ -1,4 +1,63 @@
 /* =========================
+   SOUND SYSTEM
+========================= */
+const warningSound = new Audio("sounds/warning.mp3");
+const successSound = new Audio("sounds/success.mp3");
+
+function playWarning() {
+  warningSound.currentTime = 0;
+  warningSound.play();
+}
+
+function playSuccess() {
+  successSound.currentTime = 0;
+  successSound.play();
+}
+
+/* =========================
+   CUSTOM POPUP
+========================= */
+function showAlert(msg) {
+  playSuccess();
+
+  let box = document.createElement("div");
+  box.className = "popup";
+
+  box.innerHTML = `
+    <div class="popup-box">
+      <h3>Kone Soft Tech says</h3>
+      <p>${msg}</p>
+      <button onclick="this.closest('.popup').remove()">OK</button>
+    </div>
+  `;
+
+  document.body.appendChild(box);
+}
+
+function showConfirm(msg, callback) {
+  playWarning();
+
+  let box = document.createElement("div");
+  box.className = "popup";
+
+  box.innerHTML = `
+    <div class="popup-box">
+      <h3>Kone Soft Tech says</h3>
+      <p>${msg}</p>
+      <button onclick="confirmYes()">Yes</button>
+      <button onclick="this.closest('.popup').remove()">No</button>
+    </div>
+  `;
+
+  document.body.appendChild(box);
+
+  window.confirmYes = function () {
+    box.remove();
+    callback();
+  };
+}
+
+/* =========================
    INIT APP
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
@@ -88,7 +147,7 @@ function loadPage(page) {
 
       <hr>
 
-      <table border="1" width="100%">
+      <table>
         <thead>
           <tr>
             <th>Date</th>
@@ -110,65 +169,35 @@ function loadPage(page) {
     addFabricRow();
     renderFabricTable();
 
-    setTimeout(() => document.getElementById("party").focus(), 100);
+    setTimeout(() => {
+      document.getElementById("party").focus();
+      setupFormEnterNavigation(); // 🔥 important
+    }, 100);
   }
 
-  /* CUTTING */
+  /* OTHER PAGES SAME */
   if (page === "cutting") {
-    content.innerHTML = `
-      <h2>Cutting</h2>
-      <input id="cutQty">
-      <button onclick="moveStock('fabric','cutting','cutQty')">Process</button>
-    `;
-    setTimeout(() => document.getElementById("cutQty").focus(), 100);
+    content.innerHTML = `<h2>Cutting</h2><input id="cutQty"><button onclick="moveStock('fabric','cutting','cutQty')">Process</button>`;
   }
 
-  /* STITCHING */
   if (page === "stitching") {
-    content.innerHTML = `
-      <h2>Stitching</h2>
-      <input id="stQty">
-      <button onclick="moveStock('cutting','stitching','stQty')">Process</button>
-    `;
-    setTimeout(() => document.getElementById("stQty").focus(), 100);
+    content.innerHTML = `<h2>Stitching</h2><input id="stQty"><button onclick="moveStock('cutting','stitching','stQty')">Process</button>`;
   }
 
-  /* FINISHED */
   if (page === "finished") {
-    content.innerHTML = `
-      <h2>Finished</h2>
-      <input id="finQty">
-      <button onclick="moveStock('stitching','finished','finQty')">Complete</button>
-    `;
-    setTimeout(() => document.getElementById("finQty").focus(), 100);
+    content.innerHTML = `<h2>Finished</h2><input id="finQty"><button onclick="moveStock('stitching','finished','finQty')">Complete</button>`;
   }
 
-  /* SALES */
   if (page === "sales") {
-    content.innerHTML = `
-      <h2>Sales</h2>
-      <input id="saleQty">
-      <button onclick="sellStock()">Sell</button>
-    `;
-    setTimeout(() => document.getElementById("saleQty").focus(), 100);
+    content.innerHTML = `<h2>Sales</h2><input id="saleQty"><button onclick="sellStock()">Sell</button>`;
   }
 
-  /* RETURN */
   if (page === "return") {
-    content.innerHTML = `
-      <h2>Return</h2>
-      <input id="retQty">
-      <button onclick="returnStock()">Return</button>
-    `;
-    setTimeout(() => document.getElementById("retQty").focus(), 100);
+    content.innerHTML = `<h2>Return</h2><input id="retQty"><button onclick="returnStock()">Return</button>`;
   }
 
-  /* SETTINGS */
   if (page === "settings") {
-    content.innerHTML = `
-      <h2>Settings</h2>
-      <button onclick="clearAll()">Clear Data</button>
-    `;
+    content.innerHTML = `<h2>Settings</h2><button onclick="clearAll()">Clear Data</button>`;
   }
 }
 
@@ -177,14 +206,10 @@ function loadPage(page) {
 ========================= */
 function setupKeyboard() {
 
-  const pages = [
-    "dashboard","fabric","cutting","stitching",
-    "finished","sales","return","settings"
-  ];
+  const pages = ["dashboard","fabric","cutting","stitching","finished","sales","return","settings"];
 
   document.addEventListener("keydown", function(e) {
 
-    /* ALT SHORTCUT */
     if (e.altKey) {
       let index = parseInt(e.key) - 1;
       if (pages[index]) {
@@ -193,30 +218,49 @@ function setupKeyboard() {
       }
     }
 
-    /* TAB NAVIGATION */
-    if (e.key === "Tab") {
+    // ❌ IMPORTANT FIX: TAB only for page switch when NOT inside input
+    if (e.key === "Tab" && document.activeElement.tagName !== "INPUT") {
       e.preventDefault();
 
       let current = localStorage.getItem("activePage") || "dashboard";
       let i = pages.indexOf(current);
-
       let next = pages[(i + 1) % pages.length];
+
       loadPage(next);
     }
   });
 }
 
 /* =========================
-   ACTIVE MENU
+   ENTER NAVIGATION (NEW)
 ========================= */
-function setActive(page) {
-  document.querySelectorAll(".menu a").forEach(a => {
-    a.classList.toggle("active", a.dataset.page === page);
+function setupFormEnterNavigation() {
+
+  const inputs = document.querySelectorAll("#content input");
+
+  inputs.forEach((input, index) => {
+
+    input.addEventListener("keydown", function(e) {
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+
+        if (e.shiftKey) {
+          if (index > 0) inputs[index - 1].focus();
+        } else {
+          if (index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          } else {
+            saveInvoice();
+          }
+        }
+      }
+    });
   });
 }
 
 /* =========================
-   INVENTORY
+   INVENTORY (same)
 ========================= */
 function getInventory() {
   return JSON.parse(localStorage.getItem("inventory")) || {
@@ -229,54 +273,6 @@ function getInventory() {
 
 function setInventory(data) {
   localStorage.setItem("inventory", JSON.stringify(data));
-}
-
-/* =========================
-   STOCK MOVE
-========================= */
-function moveStock(from, to, id) {
-  let qty = Number(document.getElementById(id).value);
-  let inv = getInventory();
-
-  if (inv[from] < qty) return alert("Not enough stock");
-
-  inv[from] -= qty;
-  inv[to] += qty;
-
-  setInventory(inv);
-
-  alert("Moved");
-  loadPage("dashboard");
-}
-
-/* =========================
-   SALES
-========================= */
-function sellStock() {
-  let qty = Number(document.getElementById("saleQty").value);
-  let inv = getInventory();
-
-  if (inv.finished < qty) return alert("Not enough stock");
-
-  inv.finished -= qty;
-  setInventory(inv);
-
-  alert("Sold");
-  loadPage("dashboard");
-}
-
-/* =========================
-   RETURN
-========================= */
-function returnStock() {
-  let qty = Number(document.getElementById("retQty").value);
-  let inv = getInventory();
-
-  inv.finished += qty;
-  setInventory(inv);
-
-  alert("Returned");
-  loadPage("dashboard");
 }
 
 /* =========================
@@ -305,7 +301,7 @@ function saveInvoice() {
   let invoice = document.getElementById("invoice").value;
 
   if (fabricData.find(f => f.invoice === invoice && editIndex === null)) {
-    return alert("Duplicate Invoice!");
+    return showAlert("Duplicate Invoice!");
   }
 
   let fabrics = [];
@@ -324,7 +320,7 @@ function saveInvoice() {
   });
 
   if (!party || !invoice || fabrics.length === 0) {
-    return alert("Fill all fields");
+    return showAlert("Fill all fields");
   }
 
   let gstAmount = subtotal * 0.05;
@@ -340,6 +336,8 @@ function saveInvoice() {
   }
 
   localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
+
+  showAlert("Saved Successfully");
 
   clearFabricForm();
   renderFabricTable();
@@ -410,18 +408,28 @@ function editInvoice(i) {
 }
 
 function deleteInvoice(i) {
-  if (confirm("Delete?")) {
+  showConfirm("Delete?", () => {
     fabricData.splice(i, 1);
     localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
     renderFabricTable();
-  }
+  });
+}
+
+/* =========================
+   ACTIVE MENU
+========================= */
+function setActive(page) {
+  document.querySelectorAll(".menu a").forEach(a => {
+    a.classList.toggle("active", a.dataset.page === page);
+  });
 }
 
 /* =========================
    CLEAR ALL
 ========================= */
 function clearAll() {
-  localStorage.clear();
-  alert("Cleared");
-  loadPage("dashboard");
+  showConfirm("Clear all data?", () => {
+    localStorage.clear();
+    location.reload();
+  });
 }
