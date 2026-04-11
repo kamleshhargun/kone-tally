@@ -51,18 +51,74 @@ function loadPage(page) {
   let content = document.getElementById("content");
 
   /* ================= DASHBOARD ================= */
-  if (page === "dashboard") {
-    let inv = getInventory();
-    content.innerHTML = `
-      <h2>Dashboard</h2>
-      <div class="grid">
-        <div class="card">Fabric <h2>${inv.fabric}</h2></div>
-        <div class="card">Cutting <h2>${inv.cutting}</h2></div>
-        <div class="card">Stitching <h2>${inv.stitching}</h2></div>
-        <div class="card">Finished <h2>${inv.finished}</h2></div>
-      </div>
+if (page === "dashboard") {
+
+  let purchase = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+  let cutting = JSON.parse(localStorage.getItem("cuttingData")) || [];
+  let stitching = JSON.parse(localStorage.getItem("stitchingData")) || [];
+  let sales = JSON.parse(localStorage.getItem("salesData")) || [];
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  // ===== CALC =====
+  let purchaseTotal = purchase.length;
+
+  let cuttingTotal = cutting.reduce((a,b)=>a+(b.totalPcs || 0),0);
+
+  let stitchingTotal = stitching.reduce((a,b)=>a+(b.total || 0),0);
+
+  let salesTotal = sales.reduce((a,b)=>a+(b.total || 0),0);
+
+  let inventoryTotal = 0;
+  for(let k in inventory){
+    inventoryTotal += inventory[k];
+  }
+
+  // ===== UI =====
+  content.innerHTML = `
+    <h2>Dashboard</h2>
+
+    <div class="grid">
+      <div class="card">Purchase <h2 id="purchase"></h2></div>
+      <div class="card">Cutting <h2 id="cutting"></h2></div>
+      <div class="card">Stitching <h2 id="stitching"></h2></div>
+      <div class="card">Sales <h2 id="sales"></h2></div>
+      <div class="card">Inventory <h2 id="inventory"></h2></div>
+    </div>
+
+    <hr>
+
+    <h3>Stock Details</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+        </tr>
+      </thead>
+      <tbody id="stockTable"></tbody>
+    </table>
+  `;
+
+  // ===== SET VALUES =====
+  document.getElementById("purchase").innerText = purchaseTotal;
+  document.getElementById("cutting").innerText = cuttingTotal;
+  document.getElementById("stitching").innerText = stitchingTotal;
+  document.getElementById("sales").innerText = salesTotal;
+  document.getElementById("inventory").innerText = inventoryTotal;
+
+  // ===== STOCK TABLE =====
+  let tbody = document.getElementById("stockTable");
+
+  for(let k in inventory){
+    tbody.innerHTML += `
+      <tr>
+        <td>${k}</td>
+        <td>${inventory[k]}</td>
+      </tr>
     `;
   }
+}
 
   /* ================= FABRIC ================= */
   if (page === "fabric") {
@@ -138,7 +194,864 @@ function loadPage(page) {
     renderCuttingTable();
   }
 
-  /* ================= OTHER ================= */
+    /* ================= STITCHING ================= */
+if (page === "stitching") {
+  content.innerHTML = `
+    <h2>Stitching</h2>
+
+    <div class="row">
+      <input id="stDate" type="date">
+      <input id="labour" placeholder="Labour Name">
+    </div>
+
+    <div id="entryContainer"></div>
+
+    <button onclick="addStitchRow()">+ Add Row</button>
+    <button onclick="saveStitching()">Save Stitching</button>
+
+    <hr>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Labour</th>
+          <th>Total Qty</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="stitchTable"></tbody>
+    </table>
+  `;
+
+  document.getElementById("stDate").value =
+    new Date().toISOString().split("T")[0];
+
+  addStitchRow();
+  renderStitchTable();
+
+  setTimeout(() => document.getElementById("labour").focus(), 100);
+}
+   /* =========================
+   STITCHING MODULE
+========================= */
+
+let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
+let stitchEditIndex = null;
+
+/* ===== GET READY STOCK FROM CUTTING ===== */
+function getReadyStock() {
+
+  let stock = {};
+
+  let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
+
+  // Cutting add
+  cuttingData.forEach(c=>{
+    c.rows.forEach(r=>{
+      r.sizes.forEach(size=>{
+        let key = r.sku + " - " + size;
+
+        if(!stock[key]) stock[key]=0;
+        stock[key]+=r.qty;
+      });
+    });
+  });
+
+  // Stitching minus
+  stitchingData.forEach(st=>{
+    st.entries.forEach(e=>{
+      if(stock[e.item]) stock[e.item]-=e.qty;
+    });
+  });
+
+  return stock;
+}
+
+/* ===== ADD ROW ===== */
+function addStitchRow(data={}) {
+
+  let stock = getReadyStock();
+
+  let div = document.createElement("div");
+  div.className = "row";
+
+  div.innerHTML = `
+    <select class="item">
+      ${Object.keys(stock).map(k=>`
+        <option value="${k}" ${data.item===k?"selected":""}>
+          ${k} (Pending: ${stock[k]})
+        </option>
+      `).join("")}
+    </select>
+
+    <input type="number" class="qty" placeholder="Qty" value="${data.qty||""}">
+
+    <button onclick="this.parentElement.remove()">X</button>
+  `;
+
+  document.getElementById("entryContainer").appendChild(div);
+}
+
+/* ===== SAVE ===== */
+function saveStitching() {
+
+  let date = document.getElementById("stDate").value;
+  let labour = document.getElementById("labour").value;
+
+  let entries = [];
+  let total = 0;
+
+  document.querySelectorAll("#entryContainer .row").forEach(r=>{
+    let item = r.querySelector(".item").value;
+    let qty = parseInt(r.querySelector(".qty").value);
+
+    if(item && qty){
+      entries.push({ item, qty });
+      total += qty;
+    }
+  });
+
+  if(!date || !labour || entries.length === 0){
+    alert("Fill all fields");
+    return;
+  }
+
+  let obj = { date, labour, entries, total };
+
+  if(stitchEditIndex !== null){
+    stitchingData[stitchEditIndex] = obj;
+    stitchEditIndex = null;
+  } else {
+    stitchingData.push(obj);
+  }
+
+  localStorage.setItem("stitchingData", JSON.stringify(stitchingData));
+
+  alert("Stitching Saved");
+
+  renderStitchTable();
+  clearStitchForm();
+}
+
+/* ===== TABLE ===== */
+function renderStitchTable(){
+
+  let tbody = document.getElementById("stitchTable");
+  if(!tbody) return;
+
+  tbody.innerHTML = "";
+
+  stitchingData.forEach((s,i)=>{
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.date}</td>
+        <td>${s.labour}</td>
+        <td>${s.total}</td>
+        <td>
+          <button onclick="editStitch(${i})">Edit</button>
+          <button onclick="deleteStitch(${i})">Delete</button>
+          <button onclick="toggleStitch(${i})">Details</button>
+        </td>
+      </tr>
+
+      <tr id="stitch-${i}" style="display:none">
+        <td colspan="4">
+          ${s.entries.map(e=>`${e.item} → ${e.qty}`).join("<br>")}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===== TOGGLE ===== */
+function toggleStitch(i){
+  let row = document.getElementById("stitch-"+i);
+  row.style.display = row.style.display==="none" ? "table-row" : "none";
+}
+
+/* ===== EDIT ===== */
+function editStitch(i){
+
+  let s = stitchingData[i];
+  stitchEditIndex = i;
+
+  document.getElementById("stDate").value = s.date;
+  document.getElementById("labour").value = s.labour;
+
+  document.getElementById("entryContainer").innerHTML = "";
+
+  s.entries.forEach(e=>{
+    addStitchRow(e);
+  });
+
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ===== DELETE ===== */
+function deleteStitch(i){
+
+  if(confirm("Delete this stitching entry?")){
+    stitchingData.splice(i,1);
+
+    localStorage.setItem("stitchingData", JSON.stringify(stitchingData));
+
+    renderStitchTable();
+  }
+}
+
+/* ===== CLEAR ===== */
+function clearStitchForm(){
+
+  document.getElementById("labour").value = "";
+  document.getElementById("entryContainer").innerHTML = "";
+
+  addStitchRow();
+}
+    /* ================= FINISHED ================= */
+if (page === "finished") {
+  content.innerHTML = `
+    <h2>Finished</h2>
+
+    <div class="row">
+      <input id="finDate" type="date">
+      <select id="labourSelect" onchange="loadPending()"></select>
+    </div>
+
+    <div id="entryContainer"></div>
+
+    <button onclick="saveFinished()">Save Finished</button>
+
+    <hr>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Labour</th>
+          <th>Total Qty</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="finishedTable"></tbody>
+    </table>
+  `;
+
+  document.getElementById("finDate").value =
+    new Date().toISOString().split("T")[0];
+
+  loadLabours();
+  renderFinishedTable();
+
+  setTimeout(() => document.getElementById("labourSelect").focus(), 100);
+}
+   /* =========================
+   FINISHED MODULE
+========================= */
+
+let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
+let finishedEditIndex = null;
+
+/* ===== LOAD LABOURS ===== */
+function loadLabours() {
+
+  let select = document.getElementById("labourSelect");
+  if (!select) return;
+
+  let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
+
+  let labours = [...new Set(stitchingData.map(s => s.labour))];
+
+  select.innerHTML = "";
+
+  labours.forEach(l => {
+    select.innerHTML += `<option value="${l}">${l}</option>`;
+  });
+
+  loadPending();
+}
+
+/* ===== GET PENDING ===== */
+function getPending(labour) {
+
+  let stock = {};
+
+  let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
+
+  // Add from stitching
+  stitchingData.forEach(s => {
+    if (s.labour === labour) {
+      s.entries.forEach(e => {
+        if (!stock[e.item]) stock[e.item] = 0;
+        stock[e.item] += e.qty;
+      });
+    }
+  });
+
+  // Minus finished
+  finishedData.forEach(f => {
+    if (f.labour === labour) {
+      f.entries.forEach(e => {
+        if (stock[e.item]) stock[e.item] -= e.qty;
+      });
+    }
+  });
+
+  return stock;
+}
+
+/* ===== LOAD UI ===== */
+function loadPending() {
+
+  let labour = document.getElementById("labourSelect").value;
+  let stock = getPending(labour);
+
+  let container = document.getElementById("entryContainer");
+  container.innerHTML = "";
+
+  for (let item in stock) {
+    if (stock[item] > 0) {
+      container.innerHTML += `
+        <div class="row">
+          <input type="checkbox" class="check">
+          ${item} (Pending: ${stock[item]})
+          <input type="number" class="qty" value="${stock[item]}">
+          <input type="hidden" class="item" value="${item}">
+        </div>
+      `;
+    }
+  }
+}
+
+/* ===== SAVE ===== */
+function saveFinished() {
+
+  let date = document.getElementById("finDate").value;
+  let labour = document.getElementById("labourSelect").value;
+
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  let entries = [];
+  let total = 0;
+
+  document.querySelectorAll("#entryContainer .row").forEach(r => {
+
+    let checked = r.querySelector(".check").checked;
+    let qty = parseInt(r.querySelector(".qty").value);
+    let item = r.querySelector(".item").value;
+
+    if (checked && qty) {
+      entries.push({ item, qty });
+      total += qty;
+
+      // inventory add
+      if (!inventory[item]) inventory[item] = 0;
+      inventory[item] += qty;
+    }
+  });
+
+  if (!date || entries.length === 0) {
+    alert("Select items");
+    return;
+  }
+
+  let obj = { date, labour, entries, total };
+
+  if (finishedEditIndex !== null) {
+    finishedData[finishedEditIndex] = obj;
+    finishedEditIndex = null;
+  } else {
+    finishedData.push(obj);
+  }
+
+  localStorage.setItem("finishedData", JSON.stringify(finishedData));
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+
+  alert("Finished Saved");
+
+  renderFinishedTable();
+  loadPending();
+}
+
+/* ===== TABLE ===== */
+function renderFinishedTable() {
+
+  let tbody = document.getElementById("finishedTable");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  finishedData.forEach((f, i) => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${f.date}</td>
+        <td>${f.labour}</td>
+        <td>${f.total}</td>
+        <td>
+          <button onclick="editFinished(${i})">Edit</button>
+          <button onclick="deleteFinished(${i})">Delete</button>
+          <button onclick="toggleFinished(${i})">Details</button>
+        </td>
+      </tr>
+
+      <tr id="fin-${i}" style="display:none">
+        <td colspan="4">
+          ${f.entries.map(e => `${e.item} → ${e.qty}`).join("<br>")}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===== TOGGLE ===== */
+function toggleFinished(i) {
+  let row = document.getElementById("fin-" + i);
+  row.style.display = row.style.display === "none" ? "table-row" : "none";
+}
+
+/* ===== EDIT ===== */
+function editFinished(i) {
+
+  let f = finishedData[i];
+  finishedEditIndex = i;
+
+  document.getElementById("finDate").value = f.date;
+  document.getElementById("labourSelect").value = f.labour;
+
+  loadPending();
+
+  setTimeout(() => {
+    document.querySelectorAll("#entryContainer .row").forEach(r => {
+
+      let item = r.querySelector(".item").value;
+
+      f.entries.forEach(e => {
+        if (e.item === item) {
+          r.querySelector(".check").checked = true;
+          r.querySelector(".qty").value = e.qty;
+        }
+      });
+
+    });
+  }, 200);
+}
+
+/* ===== DELETE ===== */
+function deleteFinished(i) {
+
+  if (confirm("Delete this entry?")) {
+
+    finishedData.splice(i, 1);
+
+    localStorage.setItem("finishedData", JSON.stringify(finishedData));
+
+    renderFinishedTable();
+    loadPending();
+  }
+}
+
+ /* ================= SALES ================= */
+if (page === "sales") {
+  content.innerHTML = `
+    <h2>Sales</h2>
+
+    <div class="row">
+      <input id="saleDate" type="date">
+      <input id="order" placeholder="Order No">
+      <input id="tracking" placeholder="Tracking ID">
+    </div>
+
+    <div id="productContainer"></div>
+
+    <button onclick="addSaleRow()">+ Add Product</button>
+    <button onclick="saveSale()">Save Sale</button>
+
+    <hr>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Order</th>
+          <th>Tracking</th>
+          <th>Total Qty</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="saleTable"></tbody>
+    </table>
+  `;
+
+  document.getElementById("saleDate").value =
+    new Date().toISOString().split("T")[0];
+
+  addSaleRow();
+  renderSaleTable();
+
+  setTimeout(() => document.getElementById("order").focus(), 100);
+}
+   /* =========================
+   SALES MODULE
+========================= */
+
+let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
+let saleEditIndex = null;
+
+/* ===== ADD ROW ===== */
+function addSaleRow(data = {}) {
+
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  let div = document.createElement("div");
+  div.className = "row";
+
+  div.innerHTML = `
+    <select class="item">
+      ${Object.keys(inventory).map(k => `
+        <option value="${k}" ${data.item === k ? "selected" : ""}>
+          ${k} (Stock: ${inventory[k]})
+        </option>
+      `).join("")}
+    </select>
+
+    <input type="number" class="qty" placeholder="Qty" value="${data.qty || ""}">
+
+    <button onclick="this.parentElement.remove()">X</button>
+  `;
+
+  document.getElementById("productContainer").appendChild(div);
+}
+
+/* ===== SAVE ===== */
+function saveSale() {
+
+  let date = document.getElementById("saleDate").value;
+  let order = document.getElementById("order").value;
+  let tracking = document.getElementById("tracking").value;
+
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  let items = [];
+  let total = 0;
+
+  document.querySelectorAll("#productContainer .row").forEach(r => {
+
+    let item = r.querySelector(".item").value;
+    let qty = parseInt(r.querySelector(".qty").value);
+
+    if (item && qty) {
+
+      if (!inventory[item] || inventory[item] < qty) {
+        alert("Stock not available: " + item);
+        return;
+      }
+
+      items.push({ item, qty });
+      total += qty;
+
+      inventory[item] -= qty; // minus stock
+    }
+  });
+
+  if (!date || !order || items.length === 0) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let obj = { date, order, tracking, items, total };
+
+  if (saleEditIndex !== null) {
+    salesData[saleEditIndex] = obj;
+    saleEditIndex = null;
+  } else {
+    salesData.push(obj);
+  }
+
+  localStorage.setItem("salesData", JSON.stringify(salesData));
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+
+  alert("Sale Saved");
+
+  renderSaleTable();
+  clearSaleForm();
+}
+
+/* ===== TABLE ===== */
+function renderSaleTable() {
+
+  let tbody = document.getElementById("saleTable");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  salesData.forEach((s, i) => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.date}</td>
+        <td>${s.order}</td>
+        <td>${s.tracking}</td>
+        <td>${s.total}</td>
+        <td>
+          <button onclick="editSale(${i})">Edit</button>
+          <button onclick="deleteSale(${i})">Delete</button>
+          <button onclick="toggleSale(${i})">Details</button>
+        </td>
+      </tr>
+
+      <tr id="sale-${i}" style="display:none">
+        <td colspan="5">
+          ${s.items.map(it => `${it.item} → ${it.qty}`).join("<br>")}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===== TOGGLE ===== */
+function toggleSale(i) {
+  let row = document.getElementById("sale-" + i);
+  row.style.display = row.style.display === "none" ? "table-row" : "none";
+}
+
+/* ===== EDIT ===== */
+function editSale(i) {
+
+  let s = salesData[i];
+  saleEditIndex = i;
+
+  document.getElementById("saleDate").value = s.date;
+  document.getElementById("order").value = s.order;
+  document.getElementById("tracking").value = s.tracking;
+
+  document.getElementById("productContainer").innerHTML = "";
+
+  s.items.forEach(it => addSaleRow(it));
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ===== DELETE ===== */
+function deleteSale(i) {
+
+  if (confirm("Delete this sale?")) {
+
+    salesData.splice(i, 1);
+
+    localStorage.setItem("salesData", JSON.stringify(salesData));
+
+    renderSaleTable();
+  }
+}
+
+/* ===== CLEAR ===== */
+function clearSaleForm() {
+
+  document.getElementById("order").value = "";
+  document.getElementById("tracking").value = "";
+  document.getElementById("productContainer").innerHTML = "";
+
+  addSaleRow();
+}
+   
+    /* ================= RETURN ================= */
+if (page === "return") {
+  content.innerHTML = `
+    <h2>Return</h2>
+
+    <div class="row">
+      <input id="retDate" type="date">
+      <input id="retOrder" placeholder="Order No">
+    </div>
+
+    <div id="productContainer"></div>
+
+    <button onclick="addReturnRow()">+ Add Product</button>
+    <button onclick="saveReturn()">Save Return</button>
+
+    <hr>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Order</th>
+          <th>Total Items</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="returnTable"></tbody>
+    </table>
+  `;
+
+  document.getElementById("retDate").value =
+    new Date().toISOString().split("T")[0];
+
+  addReturnRow();
+  renderReturnTable();
+
+  setTimeout(() => document.getElementById("retOrder").focus(), 100);
+}
+   /* =========================
+   RETURN MODULE
+========================= */
+
+let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
+let returnEditIndex = null;
+
+/* ===== ADD ROW ===== */
+function addReturnRow(data = {}) {
+
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  let div = document.createElement("div");
+  div.className = "row";
+
+  div.innerHTML = `
+    <select class="item">
+      ${Object.keys(inventory).map(k => `
+        <option value="${k}" ${data.item === k ? "selected" : ""}>
+          ${k} (Stock: ${inventory[k]})
+        </option>
+      `).join("")}
+    </select>
+
+    <input type="number" class="qty" placeholder="Qty" value="${data.qty || ""}">
+
+    <button onclick="this.parentElement.remove()">X</button>
+  `;
+
+  document.getElementById("productContainer").appendChild(div);
+}
+
+/* ===== SAVE ===== */
+function saveReturn() {
+
+  let date = document.getElementById("retDate").value;
+  let order = document.getElementById("retOrder").value;
+
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+  let items = [];
+  let total = 0;
+
+  document.querySelectorAll("#productContainer .row").forEach(r => {
+
+    let item = r.querySelector(".item").value;
+    let qty = parseInt(r.querySelector(".qty").value);
+
+    if (item && qty) {
+
+      items.push({ item, qty });
+      total += qty;
+
+      // stock add back
+      if (!inventory[item]) inventory[item] = 0;
+      inventory[item] += qty;
+    }
+  });
+
+  if (!date || items.length === 0) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let obj = { date, order, items, total };
+
+  if (returnEditIndex !== null) {
+    returnData[returnEditIndex] = obj;
+    returnEditIndex = null;
+  } else {
+    returnData.push(obj);
+  }
+
+  localStorage.setItem("returnData", JSON.stringify(returnData));
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+
+  alert("Return Saved");
+
+  renderReturnTable();
+  clearReturnForm();
+}
+
+/* ===== TABLE ===== */
+function renderReturnTable() {
+
+  let tbody = document.getElementById("returnTable");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  returnData.forEach((r, i) => {
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${r.date}</td>
+        <td>${r.order}</td>
+        <td>${r.total}</td>
+        <td>
+          <button onclick="editReturn(${i})">Edit</button>
+          <button onclick="deleteReturn(${i})">Delete</button>
+          <button onclick="toggleReturn(${i})">Details</button>
+        </td>
+      </tr>
+
+      <tr id="ret-${i}" style="display:none">
+        <td colspan="4">
+          ${r.items.map(it => `${it.item} → ${it.qty}`).join("<br>")}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===== TOGGLE ===== */
+function toggleReturn(i) {
+  let row = document.getElementById("ret-" + i);
+  row.style.display = row.style.display === "none" ? "table-row" : "none";
+}
+
+/* ===== EDIT ===== */
+function editReturn(i) {
+
+  let r = returnData[i];
+  returnEditIndex = i;
+
+  document.getElementById("retDate").value = r.date;
+  document.getElementById("retOrder").value = r.order;
+
+  document.getElementById("productContainer").innerHTML = "";
+
+  r.items.forEach(it => addReturnRow(it));
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ===== DELETE ===== */
+function deleteReturn(i) {
+
+  if (confirm("Delete this return?")) {
+
+    returnData.splice(i, 1);
+
+    localStorage.setItem("returnData", JSON.stringify(returnData));
+
+    renderReturnTable();
+  }
+}
+
+/* ===== CLEAR ===== */
+function clearReturnForm() {
+
+  document.getElementById("retOrder").value = "";
+  document.getElementById("productContainer").innerHTML = "";
+
+  addReturnRow();
+}
+  
+   /* ================= OTHER ================= */
   if (page === "settings") {
     content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
   }
