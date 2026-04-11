@@ -129,7 +129,7 @@ function loadPage(page) {
 }
 
   /* ================= FABRIC ================= */
-if (page === "fabric") {
+else if (page === "fabric") {
 
   content.innerHTML = `
     <h2>Fabric Purchase</h2>
@@ -166,7 +166,7 @@ if (page === "fabric") {
 }
 
 /* ================= CUTTING ================= */
-if (page === "cutting") {
+else if (page === "cutting") {
 
   content.innerHTML = `
     <h2>Cutting</h2>
@@ -201,7 +201,7 @@ if (page === "cutting") {
 }
 
 /* ================= STITCHING ================= */
-if (page === "stitching") {
+else if (page === "stitching") {
 
   content.innerHTML = `
     <h2>Stitching</h2>
@@ -358,7 +358,7 @@ function clearStitchForm(){
 }
 
 /* ================= FINISHED ================= */
-if (page === "finished") {
+else if (page === "finished") {
 
   content.innerHTML = `
     <h2>Finished</h2>
@@ -465,7 +465,7 @@ function loadPending() {
 }
 
  /* ================= SALES ================= */
-if (page === "sales") {
+else if (page === "sales") {
 
   content.innerHTML = `
     <h2>Sales</h2>
@@ -685,7 +685,7 @@ function clearSaleForm() {
 }
 
 /* ================= RETURN ================= */
-if (page === "return") {
+else if (page === "return") {
 
   content.innerHTML = `
     <h2>Return</h2>
@@ -860,7 +860,7 @@ function clearReturnForm() {
 }
   
    /* ================= OTHER ================= */
-if (page === "settings") {
+else if (page === "settings") {
   content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
 }
 }
@@ -907,7 +907,6 @@ function getInventory() {
 /* =========================
    FABRIC MODULE
 ========================= */
-let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let editIndex = null;
 let openDetails = null;
 
