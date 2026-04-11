@@ -1189,4 +1189,3 @@ function clearAll() {
     location.reload();
   }
 }
-}
