@@ -391,7 +391,7 @@ else if (page === "finished") {
 
   loadLabours();
   renderFinishedTable();
-
+}
 /* ===== FINISHED DATA ===== */
 let finishedEditIndex = null;
 
@@ -460,7 +460,7 @@ function loadPending() {
     }
   }
 }
-}
+
  /* ================= SALES ================= */
 else if (page === "sales") {
 
