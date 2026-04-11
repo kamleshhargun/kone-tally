@@ -1,47 +1,157 @@
-body {margin:0;font-family:Arial;background:#f4f6f9;}
-
-.sidebar {
-  width:220px;
-  height:100%;
-  position:fixed;
-  background:#111;
-  color:#fff;
-  padding:20px;
+/* =========================
+   GLOBAL (WIN 98 LOOK)
+========================= */
+body {
+  margin: 0;
+  font-family: Tahoma, Arial;
+  background: #c0c0c0;
 }
 
+/* =========================
+   SIDEBAR (CLASSIC PANEL)
+========================= */
+.sidebar {
+  width: 220px;
+  height: 100%;
+  position: fixed;
+  background: #c0c0c0;
+  border-right: 2px solid #fff;
+  box-shadow: inset -2px -2px 0 #808080;
+  padding: 10px;
+}
+
+.sidebar h2 {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+/* MENU */
 .menu a {
-  display:block;
-  color:#bbb;
-  padding:10px;
-  cursor:pointer;
+  display: block;
+  padding: 8px;
+  margin-bottom: 4px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu a:hover {
+  background: #dcdcdc;
 }
 
 .menu a.active {
-  background:#fff;
-  color:#000;
+  border-color: #808080 #fff #fff #808080;
+  background: #a0a0a0;
 }
 
+/* =========================
+   MAIN AREA
+========================= */
 .main {
-  margin-left:240px;
-  padding:20px;
+  margin-left: 240px;
+  padding: 20px;
 }
 
+/* =========================
+   CARD (WINDOW BOX)
+========================= */
 .card {
-  background:#fff;
-  padding:20px;
-  border-radius:10px;
-  margin:10px;
+  background: #c0c0c0;
+  padding: 15px;
+  margin: 10px;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  width: 150px;
+  text-align: center;
 }
 
-.grid {display:flex;}
+.grid {
+  display: flex;
+}
 
+/* =========================
+   INPUT FIELDS
+========================= */
+input {
+  padding: 5px;
+  margin: 5px;
+  border: 2px solid;
+  border-color: #808080 #fff #fff #808080;
+  background: #fff;
+  font-family: Tahoma;
+}
+
+/* =========================
+   BUTTON (WIN98 STYLE)
+========================= */
+button {
+  padding: 5px 10px;
+  margin: 5px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
+  cursor: pointer;
+  font-family: Tahoma;
+}
+
+button:active {
+  border-color: #808080 #fff #fff #808080;
+}
+
+/* =========================
+   TABLE
+========================= */
 table {
-  width:100%;
-  background:#fff;
-  border-collapse:collapse;
+  width: 100%;
+  border-collapse: collapse;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #808080 #808080 #fff;
 }
 
-td,th {
-  border:1px solid #ddd;
-  padding:10px;
+th {
+  background: #a0a0a0;
+  padding: 8px;
+  border: 1px solid #000;
+}
+
+td {
+  padding: 8px;
+  border: 1px solid #000;
+}
+
+/* =========================
+   ROW STYLE
+========================= */
+tr:hover {
+  background: #dcdcdc;
+}
+
+/* =========================
+   FORM ROW
+========================= */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   FABRIC ROW
+========================= */
+.fabric-row {
+  display: flex;
+  gap: 5px;
+}
+
+/* =========================
+   HR STYLE
+========================= */
+hr {
+  border: none;
+  border-top: 2px solid #808080;
+  border-bottom: 2px solid #fff;
+  margin: 15px 0;
 }
