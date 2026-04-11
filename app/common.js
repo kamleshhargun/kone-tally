@@ -32,11 +32,9 @@ function loadLayout(defaultPage = "dashboard") {
   </div>
   `;
 
-  // MENU CLICK EVENT
   document.querySelectorAll(".menu a").forEach(a => {
     a.addEventListener("click", () => {
-      let page = a.getAttribute("data-page");
-      loadPage(page);
+      loadPage(a.getAttribute("data-page"));
     });
   });
 
@@ -51,38 +49,30 @@ function loadPage(page) {
   let content = document.getElementById("content");
   setActive(page);
 
-  let inventory = getData("inventory", {
-    fabric: 0,
-    cutting: 0,
-    stitching: 0,
-    finished: 0
-  });
+  let inventory = getInventory();
 
   /* ================= DASHBOARD ================= */
   if (page === "dashboard") {
-
     content.innerHTML = `
-    <h2>Dashboard</h2>
-
-    <div class="grid">
-      <div class="card"><p>Fabric</p><h2>${inventory.fabric}</h2></div>
-      <div class="card"><p>Cutting</p><h2>${inventory.cutting}</h2></div>
-      <div class="card"><p>Stitching</p><h2>${inventory.stitching}</h2></div>
-      <div class="card"><p>Finished</p><h2>${inventory.finished}</h2></div>
-    </div>
+      <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="card"><p>Fabric</p><h2>${inventory.fabric}</h2></div>
+        <div class="card"><p>Cutting</p><h2>${inventory.cutting}</h2></div>
+        <div class="card"><p>Stitching</p><h2>${inventory.stitching}</h2></div>
+        <div class="card"><p>Finished</p><h2>${inventory.finished}</h2></div>
+      </div>
     `;
   }
 
-  /* ================= FABRIC ================= */
+  /* ================= FABRIC PAGE ================= */
   if (page === "fabric") {
     content.innerHTML = `
-      <h2>Fabric Entry</h2>
-      <input id="fabQty" type="number" placeholder="Enter Fabric Qty">
-      <button onclick="addFabric()">Add</button>
+      <h2>Fabric Purchase</h2>
+      <p>👉 Fabric invoices alag page me save hote hain</p>
+      <button onclick="openFabricPurchase()">Open Fabric Purchase</button>
     `;
   }
 
-  /* ================= CUTTING ================= */
   if (page === "cutting") {
     content.innerHTML = `
       <h2>Cutting</h2>
@@ -91,7 +81,6 @@ function loadPage(page) {
     `;
   }
 
-  /* ================= STITCHING ================= */
   if (page === "stitching") {
     content.innerHTML = `
       <h2>Stitching</h2>
@@ -100,7 +89,6 @@ function loadPage(page) {
     `;
   }
 
-  /* ================= FINISHED ================= */
   if (page === "finished") {
     content.innerHTML = `
       <h2>Finished</h2>
@@ -109,25 +97,22 @@ function loadPage(page) {
     `;
   }
 
-  /* ================= SALES ================= */
   if (page === "sales") {
     content.innerHTML = `
       <h2>Sales</h2>
-      <input id="saleQty" type="number" placeholder="Sell Qty">
+      <input id="saleQty" type="number">
       <button onclick="sellStock()">Sell</button>
     `;
   }
 
-  /* ================= RETURN ================= */
   if (page === "return") {
     content.innerHTML = `
       <h2>Return</h2>
-      <input id="retQty" type="number" placeholder="Return Qty">
+      <input id="retQty" type="number">
       <button onclick="returnStock()">Return</button>
     `;
   }
 
-  /* ================= SETTINGS ================= */
   if (page === "settings") {
     content.innerHTML = `
       <h2>Settings</h2>
@@ -137,33 +122,40 @@ function loadPage(page) {
 }
 
 /* =========================
+   FABRIC PURCHASE CONNECT
+========================= */
+function openFabricPurchase() {
+  window.open("fabric.html", "_blank");
+}
+
+/* =========================
    ACTIVE MENU
 ========================= */
 function setActive(page) {
   document.querySelectorAll(".menu a").forEach(a => {
-    a.classList.remove("active");
-
-    if (a.getAttribute("data-page") === page) {
-      a.classList.add("active");
-    }
+    a.classList.toggle("active", a.dataset.page === page);
   });
 }
 
 /* =========================
-   CORE FUNCTIONS
+   INVENTORY CORE
 ========================= */
-
-function addFabric() {
-  let qty = Number(document.getElementById("fabQty").value);
-  let inv = getInventory();
-
-  inv.fabric += qty;
-  setInventory(inv);
-
-  alert("Fabric Added");
-  loadPage("dashboard");
+function getInventory() {
+  return getData("inventory", {
+    fabric: 0,
+    cutting: 0,
+    stitching: 0,
+    finished: 0
+  });
 }
 
+function setInventory(data) {
+  setData("inventory", data);
+}
+
+/* =========================
+   STOCK MOVE
+========================= */
 function moveStock(from, to, inputId) {
   let qty = Number(document.getElementById(inputId).value);
   let inv = getInventory();
@@ -182,14 +174,14 @@ function moveStock(from, to, inputId) {
   loadPage("dashboard");
 }
 
+/* =========================
+   SELL / RETURN
+========================= */
 function sellStock() {
   let qty = Number(document.getElementById("saleQty").value);
   let inv = getInventory();
 
-  if (inv.finished < qty) {
-    alert("Stock not available");
-    return;
-  }
+  if (inv.finished < qty) return alert("Stock not available");
 
   inv.finished -= qty;
   setInventory(inv);
@@ -210,22 +202,8 @@ function returnStock() {
 }
 
 /* =========================
-   STORAGE SYSTEM
+   STORAGE
 ========================= */
-
-function getInventory() {
-  return getData("inventory", {
-    fabric: 0,
-    cutting: 0,
-    stitching: 0,
-    finished: 0
-  });
-}
-
-function setInventory(data) {
-  setData("inventory", data);
-}
-
 function getData(key, def = {}) {
   return JSON.parse(localStorage.getItem(key)) || def;
 }
@@ -234,6 +212,9 @@ function setData(key, data) {
   localStorage.setItem(key, JSON.stringify(data));
 }
 
+/* =========================
+   CLEAR ALL
+========================= */
 function clearAll() {
   localStorage.clear();
   alert("All Data Cleared");
