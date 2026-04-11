@@ -1,4 +1,15 @@
 /* =========================
+   GLOBAL DATA (ONLY ONCE)
+========================= */
+let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
+let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
+let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
+let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
+let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
+let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+/* =========================
    INIT
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
@@ -49,153 +60,149 @@ function loadPage(page) {
   setActive(page);
 
   let content = document.getElementById("content");
+  content.innerHTML = ""; // 🔥 IMPORTANT RESET
 
   /* ================= DASHBOARD ================= */
-if (page === "dashboard") {
+  if (page === "dashboard") {
 
-  let purchase = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
-  let cutting = JSON.parse(localStorage.getItem("cuttingData")) || [];
-  let stitching = JSON.parse(localStorage.getItem("stitchingData")) || [];
-  let sales = JSON.parse(localStorage.getItem("salesData")) || [];
-  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+    // ===== CALC =====
+    let purchaseTotal = fabricData.length;
 
-  // ===== CALC =====
-  let purchaseTotal = purchase.length;
+    let cuttingTotal = cuttingData.reduce((a,b)=>a+(b.totalPcs || 0),0);
 
-  let cuttingTotal = cutting.reduce((a,b)=>a+(b.totalPcs || 0),0);
+    let stitchingTotal = stitchingData.reduce((a,b)=>a+(b.total || 0),0);
 
-  let stitchingTotal = stitching.reduce((a,b)=>a+(b.total || 0),0);
+    let salesTotal = salesData.reduce((a,b)=>a+(b.total || 0),0);
 
-  let salesTotal = sales.reduce((a,b)=>a+(b.total || 0),0);
+    let inventoryTotal = 0;
+    for(let k in inventory){
+      inventoryTotal += inventory[k];
+    }
 
-  let inventoryTotal = 0;
-  for(let k in inventory){
-    inventoryTotal += inventory[k];
-  }
+    // ===== UI =====
+    content.innerHTML = `
+      <h2>Dashboard</h2>
 
-  // ===== UI =====
-  content.innerHTML = `
-    <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="card">Purchase <h2 id="purchase"></h2></div>
+        <div class="card">Cutting <h2 id="cutting"></h2></div>
+        <div class="card">Stitching <h2 id="stitching"></h2></div>
+        <div class="card">Sales <h2 id="sales"></h2></div>
+        <div class="card">Inventory <h2 id="inventory"></h2></div>
+      </div>
 
-    <div class="grid">
-      <div class="card">Purchase <h2 id="purchase"></h2></div>
-      <div class="card">Cutting <h2 id="cutting"></h2></div>
-      <div class="card">Stitching <h2 id="stitching"></h2></div>
-      <div class="card">Sales <h2 id="sales"></h2></div>
-      <div class="card">Inventory <h2 id="inventory"></h2></div>
-    </div>
+      <hr>
 
-    <hr>
+      <h3>Stock Details</h3>
 
-    <h3>Stock Details</h3>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Qty</th>
-        </tr>
-      </thead>
-      <tbody id="stockTable"></tbody>
-    </table>
-  `;
-
-  // ===== SET VALUES =====
-  document.getElementById("purchase").innerText = purchaseTotal;
-  document.getElementById("cutting").innerText = cuttingTotal;
-  document.getElementById("stitching").innerText = stitchingTotal;
-  document.getElementById("sales").innerText = salesTotal;
-  document.getElementById("inventory").innerText = inventoryTotal;
-
-  // ===== STOCK TABLE =====
-  let tbody = document.getElementById("stockTable");
-
-  for(let k in inventory){
-    tbody.innerHTML += `
-      <tr>
-        <td>${k}</td>
-        <td>${inventory[k]}</td>
-      </tr>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+          </tr>
+        </thead>
+        <tbody id="stockTable"></tbody>
+      </table>
     `;
+
+    // ===== SET VALUES =====
+    document.getElementById("purchase").innerText = purchaseTotal;
+    document.getElementById("cutting").innerText = cuttingTotal;
+    document.getElementById("stitching").innerText = stitchingTotal;
+    document.getElementById("sales").innerText = salesTotal;
+    document.getElementById("inventory").innerText = inventoryTotal;
+
+    // ===== STOCK TABLE =====
+    let tbody = document.getElementById("stockTable");
+    tbody.innerHTML = ""; // 🔥 reset
+
+    for(let k in inventory){
+      tbody.innerHTML += `
+        <tr>
+          <td>${k}</td>
+          <td>${inventory[k]}</td>
+        </tr>
+      `;
+    }
   }
 }
 
   /* ================= FABRIC ================= */
-  if (page === "fabric") {
+if (page === "fabric") {
 
-    content.innerHTML = `
-      <h2>Fabric Purchase</h2>
+  content.innerHTML = `
+    <h2>Fabric Purchase</h2>
 
-      <div class="row">
-        <input id="date" type="date">
-        <input id="party" placeholder="Party Name">
-        <input id="invoice" placeholder="Invoice No">
-      </div>
+    <div class="row">
+      <input id="date" type="date">
+      <input id="party" placeholder="Party Name">
+      <input id="invoice" placeholder="Invoice No">
+    </div>
 
-      <div id="fabricContainer"></div>
+    <div id="fabricContainer"></div>
 
-      <button onclick="addFabricRow()">+ Add Fabric</button>
-      <button onclick="saveInvoice()">Save Invoice</button>
+    <button onclick="addFabricRow()">+ Add Fabric</button>
+    <button onclick="saveInvoice()">Save Invoice</button>
 
-      <hr>
+    <hr>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Party</th><th>Invoice</th>
-            <th>Subtotal</th><th>GST</th><th>Total</th><th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    `;
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th><th>Party</th><th>Invoice</th>
+          <th>Subtotal</th><th>GST</th><th>Total</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  `;
 
-    document.getElementById("date").value =
-      new Date().toISOString().split("T")[0];
+  document.getElementById("date").value =
+    new Date().toISOString().split("T")[0];
 
-    addFabricRow();
-    renderFabricTable();
+  addFabricRow();
+  renderFabricTable();
+}
 
-    setTimeout(() => document.getElementById("party").focus(), 100);
-  }
+/* ================= CUTTING ================= */
+if (page === "cutting") {
 
-  /* ================= CUTTING ================= */
-  if (page === "cutting") {
+  content.innerHTML = `
+    <h2>Cutting</h2>
 
-    content.innerHTML = `
-      <h2>Cutting</h2>
+    <input id="cutDate" type="date">
 
-      <input id="cutDate" type="date">
+    <div id="cuttingContainer"></div>
 
-      <div id="cuttingContainer"></div>
+    <button onclick="addCuttingRow()">+ Add Row</button>
+    <button onclick="saveCutting()">Save Cutting</button>
 
-      <button onclick="addCuttingRow()">+ Add Row</button>
-      <button onclick="saveCutting()">Save Cutting</button>
+    <hr>
 
-      <hr>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Total PCS</th>
+          <th>Total Meter</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="cuttingTable"></tbody>
+    </table>
+  `;
 
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Total PCS</th>
-            <th>Total Meter</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="cuttingTable"></tbody>
-      </table>
-    `;
+  document.getElementById("cutDate").value =
+    new Date().toISOString().split("T")[0];
 
-    document.getElementById("cutDate").value =
-      new Date().toISOString().split("T")[0];
+  addCuttingRow();
+  renderCuttingTable();
+}
 
-    addCuttingRow();
-    renderCuttingTable();
-  }
-
-    /* ================= STITCHING ================= */
+/* ================= STITCHING ================= */
 if (page === "stitching") {
+
   content.innerHTML = `
     <h2>Stitching</h2>
 
@@ -229,50 +236,40 @@ if (page === "stitching") {
 
   addStitchRow();
   renderStitchTable();
-
-  setTimeout(() => document.getElementById("labour").focus(), 100);
 }
-   /* =========================
-   STITCHING MODULE
-========================= */
 
+/* ===== GLOBAL DATA (NO DUPLICATE DECLARE) ===== */
 let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
 let stitchEditIndex = null;
 
-/* ===== GET READY STOCK FROM CUTTING ===== */
+/* ===== GET READY STOCK ===== */
 function getReadyStock() {
 
   let stock = {};
-
   let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 
-  // Cutting add
   cuttingData.forEach(c=>{
     c.rows.forEach(r=>{
       r.sizes.forEach(size=>{
         let key = r.sku + " - " + size;
-
-        if(!stock[key]) stock[key]=0;
-        stock[key]+=r.qty;
+        stock[key] = (stock[key] || 0) + r.qty;
       });
     });
   });
 
-  // Stitching minus
   stitchingData.forEach(st=>{
     st.entries.forEach(e=>{
-      if(stock[e.item]) stock[e.item]-=e.qty;
+      if(stock[e.item]) stock[e.item] -= e.qty;
     });
   });
 
   return stock;
 }
 
-/* ===== ADD ROW ===== */
+/* ===== ADD STITCH ROW ===== */
 function addStitchRow(data={}) {
 
   let stock = getReadyStock();
-
   let div = document.createElement("div");
   div.className = "row";
 
@@ -285,15 +282,14 @@ function addStitchRow(data={}) {
       `).join("")}
     </select>
 
-    <input type="number" class="qty" placeholder="Qty" value="${data.qty||""}">
-
+    <input type="number" class="qty" value="${data.qty||""}">
     <button onclick="this.parentElement.remove()">X</button>
   `;
 
-  document.getElementById("entryContainer").appendChild(div);
+  document.getElementById("entryContainer")?.appendChild(div);
 }
 
-/* ===== SAVE ===== */
+/* ===== SAVE STITCHING ===== */
 function saveStitching() {
 
   let date = document.getElementById("stDate").value;
@@ -313,8 +309,7 @@ function saveStitching() {
   });
 
   if(!date || !labour || entries.length === 0){
-    alert("Fill all fields");
-    return;
+    return alert("Fill all fields");
   }
 
   let obj = { date, labour, entries, total };
@@ -328,13 +323,11 @@ function saveStitching() {
 
   localStorage.setItem("stitchingData", JSON.stringify(stitchingData));
 
-  alert("Stitching Saved");
-
   renderStitchTable();
   clearStitchForm();
 }
 
-/* ===== TABLE ===== */
+/* ===== STITCH TABLE ===== */
 function renderStitchTable(){
 
   let tbody = document.getElementById("stitchTable");
@@ -343,7 +336,6 @@ function renderStitchTable(){
   tbody.innerHTML = "";
 
   stitchingData.forEach((s,i)=>{
-
     tbody.innerHTML += `
       <tr>
         <td>${s.date}</td>
@@ -352,65 +344,22 @@ function renderStitchTable(){
         <td>
           <button onclick="editStitch(${i})">Edit</button>
           <button onclick="deleteStitch(${i})">Delete</button>
-          <button onclick="toggleStitch(${i})">Details</button>
-        </td>
-      </tr>
-
-      <tr id="stitch-${i}" style="display:none">
-        <td colspan="4">
-          ${s.entries.map(e=>`${e.item} → ${e.qty}`).join("<br>")}
         </td>
       </tr>
     `;
   });
 }
 
-/* ===== TOGGLE ===== */
-function toggleStitch(i){
-  let row = document.getElementById("stitch-"+i);
-  row.style.display = row.style.display==="none" ? "table-row" : "none";
-}
-
-/* ===== EDIT ===== */
-function editStitch(i){
-
-  let s = stitchingData[i];
-  stitchEditIndex = i;
-
-  document.getElementById("stDate").value = s.date;
-  document.getElementById("labour").value = s.labour;
-
-  document.getElementById("entryContainer").innerHTML = "";
-
-  s.entries.forEach(e=>{
-    addStitchRow(e);
-  });
-
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
-/* ===== DELETE ===== */
-function deleteStitch(i){
-
-  if(confirm("Delete this stitching entry?")){
-    stitchingData.splice(i,1);
-
-    localStorage.setItem("stitchingData", JSON.stringify(stitchingData));
-
-    renderStitchTable();
-  }
-}
-
 /* ===== CLEAR ===== */
 function clearStitchForm(){
-
   document.getElementById("labour").value = "";
   document.getElementById("entryContainer").innerHTML = "";
-
   addStitchRow();
 }
-    /* ================= FINISHED ================= */
+
+/* ================= FINISHED ================= */
 if (page === "finished") {
+
   content.innerHTML = `
     <h2>Finished</h2>
 
@@ -443,13 +392,9 @@ if (page === "finished") {
 
   loadLabours();
   renderFinishedTable();
-
-  setTimeout(() => document.getElementById("labourSelect").focus(), 100);
 }
-   /* =========================
-   FINISHED MODULE
-========================= */
 
+/* ===== FINISHED DATA ===== */
 let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
 let finishedEditIndex = null;
 
@@ -458,8 +403,6 @@ function loadLabours() {
 
   let select = document.getElementById("labourSelect");
   if (!select) return;
-
-  let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
 
   let labours = [...new Set(stitchingData.map(s => s.labour))];
 
@@ -472,28 +415,23 @@ function loadLabours() {
   loadPending();
 }
 
-/* ===== GET PENDING ===== */
+/* ===== PENDING ===== */
 function getPending(labour) {
 
   let stock = {};
 
-  let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
-
-  // Add from stitching
-  stitchingData.forEach(s => {
-    if (s.labour === labour) {
-      s.entries.forEach(e => {
-        if (!stock[e.item]) stock[e.item] = 0;
-        stock[e.item] += e.qty;
+  stitchingData.forEach(s=>{
+    if(s.labour === labour){
+      s.entries.forEach(e=>{
+        stock[e.item] = (stock[e.item] || 0) + e.qty;
       });
     }
   });
 
-  // Minus finished
-  finishedData.forEach(f => {
-    if (f.labour === labour) {
-      f.entries.forEach(e => {
-        if (stock[e.item]) stock[e.item] -= e.qty;
+  finishedData.forEach(f=>{
+    if(f.labour === labour){
+      f.entries.forEach(e=>{
+        if(stock[e.item]) stock[e.item] -= e.qty;
       });
     }
   });
@@ -508,6 +446,8 @@ function loadPending() {
   let stock = getPending(labour);
 
   let container = document.getElementById("entryContainer");
+  if(!container) return;
+
   container.innerHTML = "";
 
   for (let item in stock) {
@@ -524,136 +464,9 @@ function loadPending() {
   }
 }
 
-/* ===== SAVE ===== */
-function saveFinished() {
-
-  let date = document.getElementById("finDate").value;
-  let labour = document.getElementById("labourSelect").value;
-
-  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
-
-  let entries = [];
-  let total = 0;
-
-  document.querySelectorAll("#entryContainer .row").forEach(r => {
-
-    let checked = r.querySelector(".check").checked;
-    let qty = parseInt(r.querySelector(".qty").value);
-    let item = r.querySelector(".item").value;
-
-    if (checked && qty) {
-      entries.push({ item, qty });
-      total += qty;
-
-      // inventory add
-      if (!inventory[item]) inventory[item] = 0;
-      inventory[item] += qty;
-    }
-  });
-
-  if (!date || entries.length === 0) {
-    alert("Select items");
-    return;
-  }
-
-  let obj = { date, labour, entries, total };
-
-  if (finishedEditIndex !== null) {
-    finishedData[finishedEditIndex] = obj;
-    finishedEditIndex = null;
-  } else {
-    finishedData.push(obj);
-  }
-
-  localStorage.setItem("finishedData", JSON.stringify(finishedData));
-  localStorage.setItem("inventory", JSON.stringify(inventory));
-
-  alert("Finished Saved");
-
-  renderFinishedTable();
-  loadPending();
-}
-
-/* ===== TABLE ===== */
-function renderFinishedTable() {
-
-  let tbody = document.getElementById("finishedTable");
-  if (!tbody) return;
-
-  tbody.innerHTML = "";
-
-  finishedData.forEach((f, i) => {
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${f.date}</td>
-        <td>${f.labour}</td>
-        <td>${f.total}</td>
-        <td>
-          <button onclick="editFinished(${i})">Edit</button>
-          <button onclick="deleteFinished(${i})">Delete</button>
-          <button onclick="toggleFinished(${i})">Details</button>
-        </td>
-      </tr>
-
-      <tr id="fin-${i}" style="display:none">
-        <td colspan="4">
-          ${f.entries.map(e => `${e.item} → ${e.qty}`).join("<br>")}
-        </td>
-      </tr>
-    `;
-  });
-}
-
-/* ===== TOGGLE ===== */
-function toggleFinished(i) {
-  let row = document.getElementById("fin-" + i);
-  row.style.display = row.style.display === "none" ? "table-row" : "none";
-}
-
-/* ===== EDIT ===== */
-function editFinished(i) {
-
-  let f = finishedData[i];
-  finishedEditIndex = i;
-
-  document.getElementById("finDate").value = f.date;
-  document.getElementById("labourSelect").value = f.labour;
-
-  loadPending();
-
-  setTimeout(() => {
-    document.querySelectorAll("#entryContainer .row").forEach(r => {
-
-      let item = r.querySelector(".item").value;
-
-      f.entries.forEach(e => {
-        if (e.item === item) {
-          r.querySelector(".check").checked = true;
-          r.querySelector(".qty").value = e.qty;
-        }
-      });
-
-    });
-  }, 200);
-}
-
-/* ===== DELETE ===== */
-function deleteFinished(i) {
-
-  if (confirm("Delete this entry?")) {
-
-    finishedData.splice(i, 1);
-
-    localStorage.setItem("finishedData", JSON.stringify(finishedData));
-
-    renderFinishedTable();
-    loadPending();
-  }
-}
-
  /* ================= SALES ================= */
 if (page === "sales") {
+
   content.innerHTML = `
     <h2>Sales</h2>
 
@@ -689,13 +502,9 @@ if (page === "sales") {
 
   addSaleRow();
   renderSaleTable();
-
-  setTimeout(() => document.getElementById("order").focus(), 100);
 }
-   /* =========================
-   SALES MODULE
-========================= */
 
+/* ===== DATA ===== */
 let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
 let saleEditIndex = null;
 
@@ -716,12 +525,11 @@ function addSaleRow(data = {}) {
       `).join("")}
     </select>
 
-    <input type="number" class="qty" placeholder="Qty" value="${data.qty || ""}">
-
+    <input type="number" class="qty" value="${data.qty || ""}">
     <button onclick="this.parentElement.remove()">X</button>
   `;
 
-  document.getElementById("productContainer").appendChild(div);
+  document.getElementById("productContainer")?.appendChild(div);
 }
 
 /* ===== SAVE ===== */
@@ -735,6 +543,7 @@ function saveSale() {
 
   let items = [];
   let total = 0;
+  let error = false;
 
   document.querySelectorAll("#productContainer .row").forEach(r => {
 
@@ -745,20 +554,33 @@ function saveSale() {
 
       if (!inventory[item] || inventory[item] < qty) {
         alert("Stock not available: " + item);
+        error = true;
         return;
       }
 
       items.push({ item, qty });
       total += qty;
-
-      inventory[item] -= qty; // minus stock
     }
   });
 
+  if (error) return;
+
   if (!date || !order || items.length === 0) {
-    alert("Fill all fields");
-    return;
+    return alert("Fill all fields");
   }
+
+  // EDIT case → stock restore first
+  if (saleEditIndex !== null) {
+    let old = salesData[saleEditIndex];
+    old.items.forEach(it => {
+      inventory[it.item] += it.qty;
+    });
+  }
+
+  // now minus stock
+  items.forEach(it => {
+    inventory[it.item] -= it.qty;
+  });
 
   let obj = { date, order, tracking, items, total };
 
@@ -771,8 +593,6 @@ function saveSale() {
 
   localStorage.setItem("salesData", JSON.stringify(salesData));
   localStorage.setItem("inventory", JSON.stringify(inventory));
-
-  alert("Sale Saved");
 
   renderSaleTable();
   clearSaleForm();
@@ -813,7 +633,9 @@ function renderSaleTable() {
 /* ===== TOGGLE ===== */
 function toggleSale(i) {
   let row = document.getElementById("sale-" + i);
-  row.style.display = row.style.display === "none" ? "table-row" : "none";
+  if (row) {
+    row.style.display = row.style.display === "none" ? "table-row" : "none";
+  }
 }
 
 /* ===== EDIT ===== */
@@ -829,8 +651,6 @@ function editSale(i) {
   document.getElementById("productContainer").innerHTML = "";
 
   s.items.forEach(it => addSaleRow(it));
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ===== DELETE ===== */
@@ -838,9 +658,17 @@ function deleteSale(i) {
 
   if (confirm("Delete this sale?")) {
 
+    let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+    // restore stock
+    salesData[i].items.forEach(it => {
+      inventory[it.item] += it.qty;
+    });
+
     salesData.splice(i, 1);
 
     localStorage.setItem("salesData", JSON.stringify(salesData));
+    localStorage.setItem("inventory", JSON.stringify(inventory));
 
     renderSaleTable();
   }
@@ -855,9 +683,10 @@ function clearSaleForm() {
 
   addSaleRow();
 }
-   
-    /* ================= RETURN ================= */
+
+/* ================= RETURN ================= */
 if (page === "return") {
+
   content.innerHTML = `
     <h2>Return</h2>
 
@@ -891,13 +720,9 @@ if (page === "return") {
 
   addReturnRow();
   renderReturnTable();
-
-  setTimeout(() => document.getElementById("retOrder").focus(), 100);
 }
-   /* =========================
-   RETURN MODULE
-========================= */
 
+/* ===== DATA ===== */
 let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
 let returnEditIndex = null;
 
@@ -918,12 +743,11 @@ function addReturnRow(data = {}) {
       `).join("")}
     </select>
 
-    <input type="number" class="qty" placeholder="Qty" value="${data.qty || ""}">
-
+    <input type="number" class="qty" value="${data.qty || ""}">
     <button onclick="this.parentElement.remove()">X</button>
   `;
 
-  document.getElementById("productContainer").appendChild(div);
+  document.getElementById("productContainer")?.appendChild(div);
 }
 
 /* ===== SAVE ===== */
@@ -943,20 +767,27 @@ function saveReturn() {
     let qty = parseInt(r.querySelector(".qty").value);
 
     if (item && qty) {
-
       items.push({ item, qty });
       total += qty;
-
-      // stock add back
-      if (!inventory[item]) inventory[item] = 0;
-      inventory[item] += qty;
     }
   });
 
   if (!date || items.length === 0) {
-    alert("Fill all fields");
-    return;
+    return alert("Fill all fields");
   }
+
+  // EDIT → reverse old
+  if (returnEditIndex !== null) {
+    let old = returnData[returnEditIndex];
+    old.items.forEach(it => {
+      inventory[it.item] -= it.qty;
+    });
+  }
+
+  // add stock back
+  items.forEach(it => {
+    inventory[it.item] = (inventory[it.item] || 0) + it.qty;
+  });
 
   let obj = { date, order, items, total };
 
@@ -969,8 +800,6 @@ function saveReturn() {
 
   localStorage.setItem("returnData", JSON.stringify(returnData));
   localStorage.setItem("inventory", JSON.stringify(inventory));
-
-  alert("Return Saved");
 
   renderReturnTable();
   clearReturnForm();
@@ -994,39 +823,10 @@ function renderReturnTable() {
         <td>
           <button onclick="editReturn(${i})">Edit</button>
           <button onclick="deleteReturn(${i})">Delete</button>
-          <button onclick="toggleReturn(${i})">Details</button>
-        </td>
-      </tr>
-
-      <tr id="ret-${i}" style="display:none">
-        <td colspan="4">
-          ${r.items.map(it => `${it.item} → ${it.qty}`).join("<br>")}
         </td>
       </tr>
     `;
   });
-}
-
-/* ===== TOGGLE ===== */
-function toggleReturn(i) {
-  let row = document.getElementById("ret-" + i);
-  row.style.display = row.style.display === "none" ? "table-row" : "none";
-}
-
-/* ===== EDIT ===== */
-function editReturn(i) {
-
-  let r = returnData[i];
-  returnEditIndex = i;
-
-  document.getElementById("retDate").value = r.date;
-  document.getElementById("retOrder").value = r.order;
-
-  document.getElementById("productContainer").innerHTML = "";
-
-  r.items.forEach(it => addReturnRow(it));
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ===== DELETE ===== */
@@ -1034,9 +834,17 @@ function deleteReturn(i) {
 
   if (confirm("Delete this return?")) {
 
+    let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+
+    // reverse stock
+    returnData[i].items.forEach(it => {
+      inventory[it.item] -= it.qty;
+    });
+
     returnData.splice(i, 1);
 
     localStorage.setItem("returnData", JSON.stringify(returnData));
+    localStorage.setItem("inventory", JSON.stringify(inventory));
 
     renderReturnTable();
   }
@@ -1052,9 +860,9 @@ function clearReturnForm() {
 }
   
    /* ================= OTHER ================= */
-  if (page === "settings") {
-    content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
-  }
+if (page === "settings") {
+  content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
+}
 }
 
 /* =========================
@@ -1093,12 +901,7 @@ function setActive(page) {
    INVENTORY
 ========================= */
 function getInventory() {
-  return JSON.parse(localStorage.getItem("inventory")) || {
-    fabric: 0,
-    cutting: 0,
-    stitching: 0,
-    finished: 0
-  };
+  return JSON.parse(localStorage.getItem("inventory")) || {};
 }
 
 /* =========================
@@ -1207,7 +1010,7 @@ function renderFabricTable() {
       <tr>
         <td colspan="7">
           ${inv.fabrics.map(f =>
-            `${f.n} | ${f.m}m x ₹${f.r1} = ₹${f.amt} + GST = ₹${(f.amt*1.05).toFixed(2)}`
+            `${f.n} | ${f.m}m x ₹${f.r1} = ₹${f.amt}`
           ).join("<br>")}
         </td>
       </tr>
@@ -1279,7 +1082,7 @@ function addCuttingRow() {
     <select class="fabric">
       ${Object.keys(stock).map(f =>
         `<option value="${f}">${f} (Stock: ${stock[f]})</option>`
-      )}
+      ).join("")}
     </select>
 
     <input class="sku" placeholder="SKU">
@@ -1389,7 +1192,8 @@ function deleteCutting(i){
    CLEAR ALL
 ========================= */
 function clearAll() {
-  localStorage.clear();
-  alert("Cleared");
-  location.reload();
+  if(confirm("Are you sure? All data will be deleted!")){
+    localStorage.clear();
+    location.reload();
+  }
 }
