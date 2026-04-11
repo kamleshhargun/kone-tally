@@ -1,20 +1,19 @@
 /* =========================
    INIT APP
 ========================= */
-window.onload = () => {
-  loadLayout();
-};
+document.addEventListener("DOMContentLoaded", () => {
+  loadLayout("dashboard");
+});
 
 /* =========================
    LOAD LAYOUT
 ========================= */
 function loadLayout(defaultPage = "dashboard") {
 
-  let container = document.getElementById("app");
-
-  container.innerHTML = `
+  document.getElementById("app").innerHTML = `
   <div class="sidebar">
-    <h2>ERP</h2>
+    <h2>KONE ERP</h2>
+
     <div class="menu">
       <a data-page="dashboard">Dashboard</a>
       <a data-page="fabric">Fabric</a>
@@ -34,7 +33,7 @@ function loadLayout(defaultPage = "dashboard") {
 
   document.querySelectorAll(".menu a").forEach(a => {
     a.addEventListener("click", () => {
-      loadPage(a.getAttribute("data-page"));
+      loadPage(a.dataset.page);
     });
   });
 
@@ -42,90 +41,123 @@ function loadLayout(defaultPage = "dashboard") {
 }
 
 /* =========================
-   LOAD PAGE
+   PAGE ROUTER
 ========================= */
 function loadPage(page) {
 
   let content = document.getElementById("content");
   setActive(page);
 
-  let inventory = getInventory();
+  let inv = getInventory();
 
-  /* ================= DASHBOARD ================= */
+  /* DASHBOARD */
   if (page === "dashboard") {
     content.innerHTML = `
       <h2>Dashboard</h2>
       <div class="grid">
-        <div class="card"><p>Fabric</p><h2>${inventory.fabric}</h2></div>
-        <div class="card"><p>Cutting</p><h2>${inventory.cutting}</h2></div>
-        <div class="card"><p>Stitching</p><h2>${inventory.stitching}</h2></div>
-        <div class="card"><p>Finished</p><h2>${inventory.finished}</h2></div>
+        <div class="card">Fabric <h2>${inv.fabric}</h2></div>
+        <div class="card">Cutting <h2>${inv.cutting}</h2></div>
+        <div class="card">Stitching <h2>${inv.stitching}</h2></div>
+        <div class="card">Finished <h2>${inv.finished}</h2></div>
       </div>
     `;
   }
 
-  /* ================= FABRIC PAGE ================= */
+  /* FABRIC PAGE (INTEGRATED PURCHASE SYSTEM) */
   if (page === "fabric") {
     content.innerHTML = `
       <h2>Fabric Purchase</h2>
-      <p>👉 Fabric invoices alag page me save hote hain</p>
-      <button onclick="openFabricPurchase()">Open Fabric Purchase</button>
+
+      <input id="fabQty" type="number" placeholder="Add Fabric Qty">
+      <button onclick="addFabric()">Add Fabric Stock</button>
+
+      <hr>
+
+      <h3>Fabric Purchase Entry</h3>
+
+      <div>
+        <input id="party" placeholder="Party Name">
+        <input id="invoice" placeholder="Invoice No">
+        <input id="date" type="date">
+        <input id="gst" type="number" placeholder="GST %">
+      </div>
+
+      <div id="fabricContainer"></div>
+
+      <button onclick="addFabricRow()">+ Add Fabric Row</button>
+      <button onclick="saveInvoice()">Save Invoice</button>
+
+      <hr>
+
+      <h3>Saved Invoices</h3>
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>Party</th>
+            <th>Invoice</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     `;
+
+    addFabricRow();
+    renderFabricTable();
   }
 
+  /* CUTTING */
   if (page === "cutting") {
     content.innerHTML = `
       <h2>Cutting</h2>
-      <input id="cutQty" type="number" placeholder="Qty">
+      <input id="cutQty">
       <button onclick="moveStock('fabric','cutting','cutQty')">Process</button>
     `;
   }
 
+  /* STITCHING */
   if (page === "stitching") {
     content.innerHTML = `
       <h2>Stitching</h2>
-      <input id="stQty" type="number" placeholder="Qty">
+      <input id="stQty">
       <button onclick="moveStock('cutting','stitching','stQty')">Process</button>
     `;
   }
 
+  /* FINISHED */
   if (page === "finished") {
     content.innerHTML = `
       <h2>Finished</h2>
-      <input id="finQty" type="number" placeholder="Qty">
+      <input id="finQty">
       <button onclick="moveStock('stitching','finished','finQty')">Complete</button>
     `;
   }
 
+  /* SALES */
   if (page === "sales") {
     content.innerHTML = `
       <h2>Sales</h2>
-      <input id="saleQty" type="number">
+      <input id="saleQty">
       <button onclick="sellStock()">Sell</button>
     `;
   }
 
+  /* RETURN */
   if (page === "return") {
     content.innerHTML = `
       <h2>Return</h2>
-      <input id="retQty" type="number">
+      <input id="retQty">
       <button onclick="returnStock()">Return</button>
     `;
   }
 
+  /* SETTINGS */
   if (page === "settings") {
     content.innerHTML = `
       <h2>Settings</h2>
       <button onclick="clearAll()">Clear Data</button>
     `;
   }
-}
-
-/* =========================
-   FABRIC PURCHASE CONNECT
-========================= */
-function openFabricPurchase() {
-  window.open("fabric.html", "_blank");
 }
 
 /* =========================
@@ -138,58 +170,72 @@ function setActive(page) {
 }
 
 /* =========================
-   INVENTORY CORE
+   INVENTORY SYSTEM
 ========================= */
 function getInventory() {
-  return getData("inventory", {
+  return JSON.parse(localStorage.getItem("inventory")) || {
     fabric: 0,
     cutting: 0,
     stitching: 0,
     finished: 0
-  });
+  };
 }
 
 function setInventory(data) {
-  setData("inventory", data);
+  localStorage.setItem("inventory", JSON.stringify(data));
+}
+
+/* =========================
+   FABRIC STOCK ADD
+========================= */
+function addFabric() {
+  let qty = Number(document.getElementById("fabQty").value);
+  let inv = getInventory();
+
+  inv.fabric += qty;
+  setInventory(inv);
+
+  alert("Fabric Added");
+  loadPage("dashboard");
 }
 
 /* =========================
    STOCK MOVE
 ========================= */
-function moveStock(from, to, inputId) {
-  let qty = Number(document.getElementById(inputId).value);
+function moveStock(from, to, id) {
+  let qty = Number(document.getElementById(id).value);
   let inv = getInventory();
 
-  if (inv[from] < qty) {
-    alert("Not enough stock");
-    return;
-  }
+  if (inv[from] < qty) return alert("Not enough stock");
 
   inv[from] -= qty;
   inv[to] += qty;
 
   setInventory(inv);
 
-  alert("Moved Successfully");
+  alert("Moved");
   loadPage("dashboard");
 }
 
 /* =========================
-   SELL / RETURN
+   SALES
 ========================= */
 function sellStock() {
   let qty = Number(document.getElementById("saleQty").value);
   let inv = getInventory();
 
-  if (inv.finished < qty) return alert("Stock not available");
+  if (inv.finished < qty) return alert("Not enough stock");
 
   inv.finished -= qty;
   setInventory(inv);
 
-  alert("Sale Done");
+  alert("Sold");
   loadPage("dashboard");
 }
 
+/* =========================
+   RETURN
+========================= */
 function returnStock() {
   let qty = Number(document.getElementById("retQty").value);
   let inv = getInventory();
@@ -202,14 +248,76 @@ function returnStock() {
 }
 
 /* =========================
-   STORAGE
+   FABRIC PURCHASE MODULE
 ========================= */
-function getData(key, def = {}) {
-  return JSON.parse(localStorage.getItem(key)) || def;
+let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+
+function addFabricRow(name="", meter="", rate="") {
+  let div = document.createElement("div");
+
+  div.innerHTML = `
+    <input class="fName" placeholder="Fabric" value="${name}">
+    <input class="fMeter" type="number" placeholder="Meter" value="${meter}">
+    <input class="fRate" type="number" placeholder="Rate" value="${rate}">
+  `;
+
+  document.getElementById("fabricContainer").appendChild(div);
 }
 
-function setData(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
+function saveInvoice() {
+
+  let party = document.getElementById("party").value;
+  let invoice = document.getElementById("invoice").value;
+  let date = document.getElementById("date").value;
+  let gst = Number(document.getElementById("gst").value) || 0;
+
+  let fabrics = [];
+  let subtotal = 0;
+
+  document.querySelectorAll("#fabricContainer div").forEach(row => {
+
+    let name = row.querySelector(".fName").value;
+    let meter = Number(row.querySelector(".fMeter").value);
+    let rate = Number(row.querySelector(".fRate").value);
+
+    let amount = meter * rate;
+
+    if (name) {
+      fabrics.push({ name, meter, rate, amount });
+      subtotal += amount;
+    }
+  });
+
+  let gstAmount = subtotal * gst / 100;
+  let total = subtotal + gstAmount;
+
+  fabricData.push({ party, invoice, date, gst, fabrics, subtotal, gstAmount, total });
+
+  localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
+
+  alert("Invoice Saved");
+  renderFabricTable();
+}
+
+/* =========================
+   RENDER TABLE
+========================= */
+function renderFabricTable() {
+
+  let tbody = document.getElementById("tableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  fabricData.forEach(inv => {
+    tbody.innerHTML += `
+      <tr>
+        <td>${inv.party}</td>
+        <td>${inv.invoice}</td>
+        <td>₹${inv.total}</td>
+      </tr>
+    `;
+  });
 }
 
 /* =========================
@@ -217,6 +325,6 @@ function setData(key, data) {
 ========================= */
 function clearAll() {
   localStorage.clear();
-  alert("All Data Cleared");
+  alert("Cleared");
   loadPage("dashboard");
 }
