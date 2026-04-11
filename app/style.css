@@ -19,14 +19,16 @@ body {
   border-right: 2px solid #fff;
   box-shadow: inset -2px -2px 0 #808080;
   padding: 10px;
+  overflow-y: auto;
 }
 
 .sidebar h2 {
   font-size: 16px;
   margin-bottom: 15px;
-  padding: 5px;
+  padding: 6px;
   background: #000080;
   color: #fff;
+  text-align: center;
 }
 
 /* MENU */
@@ -40,6 +42,7 @@ body {
   text-decoration: none;
   color: #000;
   font-weight: bold;
+  transition: 0.1s;
 }
 
 .menu a:hover {
@@ -61,17 +64,43 @@ body {
 }
 
 /* =========================
+   HEADINGS
+========================= */
+h2 {
+  background: #000080;
+  color: #fff;
+  padding: 6px 10px;
+  display: inline-block;
+  font-size: 16px;
+}
+
+h3 {
+  margin-top: 20px;
+}
+
+/* =========================
    CARD (DASHBOARD)
 ========================= */
 .card {
   background: #c0c0c0;
-  padding: 20px;
+  padding: 15px;
   margin: 10px;
   border: 2px solid;
   border-color: #fff #808080 #808080 #fff;
   width: 160px;
   text-align: center;
   font-weight: bold;
+  transition: 0.15s;
+}
+
+.card h2 {
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  background: #dcdcdc;
 }
 
 .grid {
@@ -82,7 +111,7 @@ body {
 /* =========================
    INPUT
 ========================= */
-input {
+input, select {
   padding: 6px;
   margin: 5px;
   border: 2px solid;
@@ -90,6 +119,11 @@ input {
   background: #fff;
   font-family: Tahoma;
   min-width: 120px;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #000080 #fff #fff #000080;
 }
 
 /* =========================
@@ -103,6 +137,7 @@ button {
   border-color: #fff #808080 #808080 #fff;
   cursor: pointer;
   font-weight: bold;
+  transition: 0.1s;
 }
 
 button:hover {
@@ -130,12 +165,14 @@ th {
   color: #fff;
   padding: 8px;
   border: 1px solid #000;
+  font-size: 13px;
 }
 
 td {
   padding: 8px;
   border: 1px solid #000;
   background: #e0e0e0;
+  font-size: 13px;
 }
 
 tr:hover td {
@@ -149,6 +186,8 @@ tr:hover td {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
 }
 
 /* =========================
@@ -171,7 +210,7 @@ hr {
 }
 
 /* =========================
-   POPUP (IMPORTANT FIX)
+   POPUP
 ========================= */
 .popup {
   position: fixed;
@@ -200,4 +239,20 @@ hr {
   background: #000080;
   color: #fff;
   font-size: 14px;
+}
+
+/* =========================
+   SCROLLBAR (BONUS 😎)
+========================= */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #c0c0c0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #808080;
+  border: 2px solid #c0c0c0;
 }
