@@ -859,7 +859,7 @@ function clearReturnForm() {
 else if (page === "settings") {
   content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
 }
-
+}
 
 /* =========================
    KEYBOARD SHORTCUT
