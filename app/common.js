@@ -1,9 +1,12 @@
-
 /* =========================
    INIT APP
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  loadLayout("dashboard");
+
+  let savedPage = localStorage.getItem("activePage") || "dashboard";
+  loadLayout(savedPage);
+
+  setupKeyboard();
 });
 
 /* =========================
@@ -33,7 +36,9 @@ function loadLayout(defaultPage = "dashboard") {
   `;
 
   document.querySelectorAll(".menu a").forEach(a => {
-    a.addEventListener("click", () => loadPage(a.dataset.page));
+    a.addEventListener("click", () => {
+      loadPage(a.dataset.page);
+    });
   });
 
   loadPage(defaultPage);
@@ -43,6 +48,8 @@ function loadLayout(defaultPage = "dashboard") {
    PAGE ROUTER
 ========================= */
 function loadPage(page) {
+
+  localStorage.setItem("activePage", page);
 
   let content = document.getElementById("content");
   setActive(page);
@@ -62,11 +69,8 @@ function loadPage(page) {
     `;
   }
 
-  /* =========================
-     FABRIC PAGE (FINAL CLEAN)
-  ========================= */
+  /* FABRIC */
   if (page === "fabric") {
-
     content.innerHTML = `
       <h2>Fabric Purchase</h2>
 
@@ -74,7 +78,7 @@ function loadPage(page) {
         <input id="date" type="date">
         <input id="party" placeholder="Party Name">
         <input id="invoice" placeholder="Invoice No">
-        <input id="gst" value="5" readonly>
+        <input value="5" readonly>
       </div>
 
       <div id="fabricContainer"></div>
@@ -83,8 +87,6 @@ function loadPage(page) {
       <button onclick="saveInvoice()">Save Invoice</button>
 
       <hr>
-
-      <h3>Saved Invoices</h3>
 
       <table border="1" width="100%">
         <thead>
@@ -98,7 +100,6 @@ function loadPage(page) {
             <th>Action</th>
           </tr>
         </thead>
-
         <tbody id="tableBody"></tbody>
       </table>
     `;
@@ -108,15 +109,101 @@ function loadPage(page) {
 
     addFabricRow();
     renderFabricTable();
+
+    setTimeout(() => document.getElementById("party").focus(), 100);
   }
 
-  /* OTHER PAGES */
-  if (page === "cutting") content.innerHTML = `<h2>Cutting</h2><input id="cutQty"><button onclick="moveStock('fabric','cutting','cutQty')">Process</button>`;
-  if (page === "stitching") content.innerHTML = `<h2>Stitching</h2><input id="stQty"><button onclick="moveStock('cutting','stitching','stQty')">Process</button>`;
-  if (page === "finished") content.innerHTML = `<h2>Finished</h2><input id="finQty"><button onclick="moveStock('stitching','finished','finQty')">Complete</button>`;
-  if (page === "sales") content.innerHTML = `<h2>Sales</h2><input id="saleQty"><button onclick="sellStock()">Sell</button>`;
-  if (page === "return") content.innerHTML = `<h2>Return</h2><input id="retQty"><button onclick="returnStock()">Return</button>`;
-  if (page === "settings") content.innerHTML = `<h2>Settings</h2><button onclick="clearAll()">Clear Data</button>`;
+  /* CUTTING */
+  if (page === "cutting") {
+    content.innerHTML = `
+      <h2>Cutting</h2>
+      <input id="cutQty">
+      <button onclick="moveStock('fabric','cutting','cutQty')">Process</button>
+    `;
+    setTimeout(() => document.getElementById("cutQty").focus(), 100);
+  }
+
+  /* STITCHING */
+  if (page === "stitching") {
+    content.innerHTML = `
+      <h2>Stitching</h2>
+      <input id="stQty">
+      <button onclick="moveStock('cutting','stitching','stQty')">Process</button>
+    `;
+    setTimeout(() => document.getElementById("stQty").focus(), 100);
+  }
+
+  /* FINISHED */
+  if (page === "finished") {
+    content.innerHTML = `
+      <h2>Finished</h2>
+      <input id="finQty">
+      <button onclick="moveStock('stitching','finished','finQty')">Complete</button>
+    `;
+    setTimeout(() => document.getElementById("finQty").focus(), 100);
+  }
+
+  /* SALES */
+  if (page === "sales") {
+    content.innerHTML = `
+      <h2>Sales</h2>
+      <input id="saleQty">
+      <button onclick="sellStock()">Sell</button>
+    `;
+    setTimeout(() => document.getElementById("saleQty").focus(), 100);
+  }
+
+  /* RETURN */
+  if (page === "return") {
+    content.innerHTML = `
+      <h2>Return</h2>
+      <input id="retQty">
+      <button onclick="returnStock()">Return</button>
+    `;
+    setTimeout(() => document.getElementById("retQty").focus(), 100);
+  }
+
+  /* SETTINGS */
+  if (page === "settings") {
+    content.innerHTML = `
+      <h2>Settings</h2>
+      <button onclick="clearAll()">Clear Data</button>
+    `;
+  }
+}
+
+/* =========================
+   KEYBOARD SYSTEM
+========================= */
+function setupKeyboard() {
+
+  const pages = [
+    "dashboard","fabric","cutting","stitching",
+    "finished","sales","return","settings"
+  ];
+
+  document.addEventListener("keydown", function(e) {
+
+    /* ALT SHORTCUT */
+    if (e.altKey) {
+      let index = parseInt(e.key) - 1;
+      if (pages[index]) {
+        e.preventDefault();
+        loadPage(pages[index]);
+      }
+    }
+
+    /* TAB NAVIGATION */
+    if (e.key === "Tab") {
+      e.preventDefault();
+
+      let current = localStorage.getItem("activePage") || "dashboard";
+      let i = pages.indexOf(current);
+
+      let next = pages[(i + 1) % pages.length];
+      loadPage(next);
+    }
+  });
 }
 
 /* =========================
@@ -193,15 +280,13 @@ function returnStock() {
 }
 
 /* =========================
-   FABRIC MODULE (FINAL ADVANCED)
+   FABRIC MODULE
 ========================= */
-
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let editIndex = null;
 let openDetails = null;
 
-/* ROW */
-function addFabricRow(name = "", meter = "", rate = "") {
+function addFabricRow(name="", meter="", rate="") {
   let div = document.createElement("div");
 
   div.innerHTML = `
@@ -213,25 +298,20 @@ function addFabricRow(name = "", meter = "", rate = "") {
   document.getElementById("fabricContainer").appendChild(div);
 }
 
-/* SAVE INVOICE (NO DUPLICATE CHECK) */
 function saveInvoice() {
 
   let date = document.getElementById("date").value;
   let party = document.getElementById("party").value;
   let invoice = document.getElementById("invoice").value;
-  let gst = 5;
 
-  // ❗ DUPLICATE CHECK
-  let duplicate = fabricData.find(f => f.invoice === invoice && editIndex === null);
-  if (duplicate) {
-    return alert("Invoice already exists!");
+  if (fabricData.find(f => f.invoice === invoice && editIndex === null)) {
+    return alert("Duplicate Invoice!");
   }
 
   let fabrics = [];
   let subtotal = 0;
 
   document.querySelectorAll("#fabricContainer div").forEach(row => {
-
     let name = row.querySelector(".fName").value;
     let meter = Number(row.querySelector(".fMeter").value);
     let rate = Number(row.querySelector(".fRate").value);
@@ -247,7 +327,7 @@ function saveInvoice() {
     return alert("Fill all fields");
   }
 
-  let gstAmount = subtotal * gst / 100;
+  let gstAmount = subtotal * 0.05;
   let total = subtotal + gstAmount;
 
   let obj = { date, party, invoice, fabrics, subtotal, gstAmount, total };
@@ -261,13 +341,10 @@ function saveInvoice() {
 
   localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
 
-  alert("Saved");
-
-  clearFabricForm();   // ✔ RESET FORM
+  clearFabricForm();
   renderFabricTable();
 }
 
-/* RESET FORM AFTER SAVE */
 function clearFabricForm() {
   document.getElementById("party").value = "";
   document.getElementById("invoice").value = "";
@@ -275,7 +352,6 @@ function clearFabricForm() {
   addFabricRow();
 }
 
-/* TABLE RENDER WITH DETAILS TOGGLE */
 function renderFabricTable() {
 
   let tbody = document.getElementById("tableBody");
@@ -285,7 +361,7 @@ function renderFabricTable() {
 
   fabricData.forEach((inv, i) => {
 
-    let isOpen = openDetails === i;
+    let open = openDetails === i;
 
     tbody.innerHTML += `
       <tr>
@@ -295,7 +371,6 @@ function renderFabricTable() {
         <td>${inv.subtotal.toFixed(2)}</td>
         <td>${inv.gstAmount.toFixed(2)}</td>
         <td>${inv.total.toFixed(2)}</td>
-
         <td>
           <button onclick="editInvoice(${i})">Edit</button>
           <button onclick="deleteInvoice(${i})">Delete</button>
@@ -303,14 +378,12 @@ function renderFabricTable() {
         </td>
       </tr>
 
-      ${isOpen ? `
+      ${open ? `
       <tr>
         <td colspan="7">
-          ${inv.fabrics.map(f => `
-            <div>
-              ${f.name} | ${f.meter}m | ₹${f.rate} = ₹${f.amount}
-            </div>
-          `).join("")}
+          ${inv.fabrics.map(f =>
+            `${f.name} | ${f.meter}m | ₹${f.rate} = ₹${f.amount}`
+          ).join("<br>")}
         </td>
       </tr>
       ` : ""}
@@ -318,13 +391,11 @@ function renderFabricTable() {
   });
 }
 
-/* TOGGLE DETAILS */
 function toggleDetails(i) {
   openDetails = (openDetails === i) ? null : i;
   renderFabricTable();
 }
 
-/* EDIT */
 function editInvoice(i) {
   let inv = fabricData[i];
   editIndex = i;
@@ -338,9 +409,7 @@ function editInvoice(i) {
   inv.fabrics.forEach(f => addFabricRow(f.name, f.meter, f.rate));
 }
 
-/* DELETE */
 function deleteInvoice(i) {
-
   if (confirm("Delete?")) {
     fabricData.splice(i, 1);
     localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
