@@ -1,3 +1,4 @@
+
 /* =========================
    INIT APP
 ========================= */
@@ -32,9 +33,7 @@ function loadLayout(defaultPage = "dashboard") {
   `;
 
   document.querySelectorAll(".menu a").forEach(a => {
-    a.addEventListener("click", () => {
-      loadPage(a.dataset.page);
-    });
+    a.addEventListener("click", () => loadPage(a.dataset.page));
   });
 
   loadPage(defaultPage);
@@ -64,21 +63,12 @@ function loadPage(page) {
   }
 
   /* =========================
-     FABRIC PAGE (UPDATED FULL)
+     FABRIC PAGE (FINAL CLEAN)
   ========================= */
   if (page === "fabric") {
 
     content.innerHTML = `
       <h2>Fabric Purchase</h2>
-
-      <!-- STOCK ADD -->
-      <input id="fabQty" type="number" placeholder="Add Fabric Qty">
-      <button onclick="addFabric()">Add Stock</button>
-
-      <hr>
-
-      <!-- INVOICE SECTION -->
-      <h3>Purchase Entry</h3>
 
       <div class="row">
         <input id="date" type="date">
@@ -89,12 +79,11 @@ function loadPage(page) {
 
       <div id="fabricContainer"></div>
 
-      <button onclick="addFabricRow()">+ Add Fabric Row</button>
+      <button onclick="addFabricRow()">+ Add Fabric</button>
       <button onclick="saveInvoice()">Save Invoice</button>
 
       <hr>
 
-      <!-- TABLE -->
       <h3>Saved Invoices</h3>
 
       <table border="1" width="100%">
@@ -109,11 +98,11 @@ function loadPage(page) {
             <th>Action</th>
           </tr>
         </thead>
+
         <tbody id="tableBody"></tbody>
       </table>
     `;
 
-    // AUTO DATE
     document.getElementById("date").value =
       new Date().toISOString().split("T")[0];
 
@@ -121,58 +110,13 @@ function loadPage(page) {
     renderFabricTable();
   }
 
-  /* CUTTING */
-  if (page === "cutting") {
-    content.innerHTML = `
-      <h2>Cutting</h2>
-      <input id="cutQty">
-      <button onclick="moveStock('fabric','cutting','cutQty')">Process</button>
-    `;
-  }
-
-  /* STITCHING */
-  if (page === "stitching") {
-    content.innerHTML = `
-      <h2>Stitching</h2>
-      <input id="stQty">
-      <button onclick="moveStock('cutting','stitching','stQty')">Process</button>
-    `;
-  }
-
-  /* FINISHED */
-  if (page === "finished") {
-    content.innerHTML = `
-      <h2>Finished</h2>
-      <input id="finQty">
-      <button onclick="moveStock('stitching','finished','finQty')">Complete</button>
-    `;
-  }
-
-  /* SALES */
-  if (page === "sales") {
-    content.innerHTML = `
-      <h2>Sales</h2>
-      <input id="saleQty">
-      <button onclick="sellStock()">Sell</button>
-    `;
-  }
-
-  /* RETURN */
-  if (page === "return") {
-    content.innerHTML = `
-      <h2>Return</h2>
-      <input id="retQty">
-      <button onclick="returnStock()">Return</button>
-    `;
-  }
-
-  /* SETTINGS */
-  if (page === "settings") {
-    content.innerHTML = `
-      <h2>Settings</h2>
-      <button onclick="clearAll()">Clear Data</button>
-    `;
-  }
+  /* OTHER PAGES */
+  if (page === "cutting") content.innerHTML = `<h2>Cutting</h2><input id="cutQty"><button onclick="moveStock('fabric','cutting','cutQty')">Process</button>`;
+  if (page === "stitching") content.innerHTML = `<h2>Stitching</h2><input id="stQty"><button onclick="moveStock('cutting','stitching','stQty')">Process</button>`;
+  if (page === "finished") content.innerHTML = `<h2>Finished</h2><input id="finQty"><button onclick="moveStock('stitching','finished','finQty')">Complete</button>`;
+  if (page === "sales") content.innerHTML = `<h2>Sales</h2><input id="saleQty"><button onclick="sellStock()">Sell</button>`;
+  if (page === "return") content.innerHTML = `<h2>Return</h2><input id="retQty"><button onclick="returnStock()">Return</button>`;
+  if (page === "settings") content.innerHTML = `<h2>Settings</h2><button onclick="clearAll()">Clear Data</button>`;
 }
 
 /* =========================
@@ -198,20 +142,6 @@ function getInventory() {
 
 function setInventory(data) {
   localStorage.setItem("inventory", JSON.stringify(data));
-}
-
-/* =========================
-   FABRIC STOCK ADD
-========================= */
-function addFabric() {
-  let qty = Number(document.getElementById("fabQty").value);
-  let inv = getInventory();
-
-  inv.fabric += qty;
-  setInventory(inv);
-
-  alert("Fabric Added");
-  loadPage("dashboard");
 }
 
 /* =========================
@@ -263,10 +193,12 @@ function returnStock() {
 }
 
 /* =========================
-   FABRIC PURCHASE SYSTEM (UPDATED)
+   FABRIC MODULE (FINAL ADVANCED)
 ========================= */
+
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let editIndex = null;
+let openDetails = null;
 
 /* ROW */
 function addFabricRow(name = "", meter = "", rate = "") {
@@ -281,13 +213,19 @@ function addFabricRow(name = "", meter = "", rate = "") {
   document.getElementById("fabricContainer").appendChild(div);
 }
 
-/* SAVE */
+/* SAVE INVOICE (NO DUPLICATE CHECK) */
 function saveInvoice() {
 
   let date = document.getElementById("date").value;
   let party = document.getElementById("party").value;
   let invoice = document.getElementById("invoice").value;
   let gst = 5;
+
+  // ❗ DUPLICATE CHECK
+  let duplicate = fabricData.find(f => f.invoice === invoice && editIndex === null);
+  if (duplicate) {
+    return alert("Invoice already exists!");
+  }
 
   let fabrics = [];
   let subtotal = 0;
@@ -298,9 +236,8 @@ function saveInvoice() {
     let meter = Number(row.querySelector(".fMeter").value);
     let rate = Number(row.querySelector(".fRate").value);
 
-    let amount = meter * rate;
-
     if (name && meter && rate) {
+      let amount = meter * rate;
       fabrics.push({ name, meter, rate, amount });
       subtotal += amount;
     }
@@ -326,10 +263,19 @@ function saveInvoice() {
 
   alert("Saved");
 
+  clearFabricForm();   // ✔ RESET FORM
   renderFabricTable();
 }
 
-/* TABLE */
+/* RESET FORM AFTER SAVE */
+function clearFabricForm() {
+  document.getElementById("party").value = "";
+  document.getElementById("invoice").value = "";
+  document.getElementById("fabricContainer").innerHTML = "";
+  addFabricRow();
+}
+
+/* TABLE RENDER WITH DETAILS TOGGLE */
 function renderFabricTable() {
 
   let tbody = document.getElementById("tableBody");
@@ -338,6 +284,8 @@ function renderFabricTable() {
   tbody.innerHTML = "";
 
   fabricData.forEach((inv, i) => {
+
+    let isOpen = openDetails === i;
 
     tbody.innerHTML += `
       <tr>
@@ -351,10 +299,29 @@ function renderFabricTable() {
         <td>
           <button onclick="editInvoice(${i})">Edit</button>
           <button onclick="deleteInvoice(${i})">Delete</button>
+          <button onclick="toggleDetails(${i})">Details</button>
         </td>
       </tr>
+
+      ${isOpen ? `
+      <tr>
+        <td colspan="7">
+          ${inv.fabrics.map(f => `
+            <div>
+              ${f.name} | ${f.meter}m | ₹${f.rate} = ₹${f.amount}
+            </div>
+          `).join("")}
+        </td>
+      </tr>
+      ` : ""}
     `;
   });
+}
+
+/* TOGGLE DETAILS */
+function toggleDetails(i) {
+  openDetails = (openDetails === i) ? null : i;
+  renderFabricTable();
 }
 
 /* EDIT */
@@ -368,9 +335,7 @@ function editInvoice(i) {
 
   document.getElementById("fabricContainer").innerHTML = "";
 
-  inv.fabrics.forEach(f => {
-    addFabricRow(f.name, f.meter, f.rate);
-  });
+  inv.fabrics.forEach(f => addFabricRow(f.name, f.meter, f.rate));
 }
 
 /* DELETE */
