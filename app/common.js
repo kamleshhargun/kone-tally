@@ -15,6 +15,7 @@ function loadLayout(defaultPage) {
   document.getElementById("app").innerHTML = `
   <div class="sidebar">
     <h2>KONE ERP</h2>
+
     <div class="menu">
       <a data-page="dashboard">Dashboard</a>
       <a data-page="fabric">Fabric</a>
@@ -51,11 +52,21 @@ function loadPage(page) {
 
   /* ================= DASHBOARD ================= */
   if (page === "dashboard") {
-    content.innerHTML = `<h2>Dashboard</h2>`;
+    let inv = getInventory();
+    content.innerHTML = `
+      <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="card">Fabric <h2>${inv.fabric}</h2></div>
+        <div class="card">Cutting <h2>${inv.cutting}</h2></div>
+        <div class="card">Stitching <h2>${inv.stitching}</h2></div>
+        <div class="card">Finished <h2>${inv.finished}</h2></div>
+      </div>
+    `;
   }
 
   /* ================= FABRIC ================= */
   if (page === "fabric") {
+
     content.innerHTML = `
       <h2>Fabric Purchase</h2>
 
@@ -88,10 +99,13 @@ function loadPage(page) {
 
     addFabricRow();
     renderFabricTable();
+
+    setTimeout(() => document.getElementById("party").focus(), 100);
   }
 
   /* ================= CUTTING ================= */
   if (page === "cutting") {
+
     content.innerHTML = `
       <h2>Cutting</h2>
 
@@ -123,15 +137,26 @@ function loadPage(page) {
     addCuttingRow();
     renderCuttingTable();
   }
+
+  /* ================= OTHER ================= */
+  if (page === "settings") {
+    content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
+  }
 }
 
 /* =========================
-   KEYBOARD (ALT SHORTCUT)
+   KEYBOARD SHORTCUT
 ========================= */
 function setupKeyboard() {
-  const pages = ["dashboard","fabric","cutting","stitching","finished","sales","return","settings"];
+
+  const pages = [
+    "dashboard","fabric","cutting",
+    "stitching","finished","sales",
+    "return","settings"
+  ];
 
   document.addEventListener("keydown", e => {
+
     if (e.altKey) {
       let i = parseInt(e.key) - 1;
       if (pages[i]) {
@@ -143,14 +168,35 @@ function setupKeyboard() {
 }
 
 /* =========================
+   ACTIVE MENU
+========================= */
+function setActive(page) {
+  document.querySelectorAll(".menu a").forEach(a => {
+    a.classList.toggle("active", a.dataset.page === page);
+  });
+}
+
+/* =========================
+   INVENTORY
+========================= */
+function getInventory() {
+  return JSON.parse(localStorage.getItem("inventory")) || {
+    fabric: 0,
+    cutting: 0,
+    stitching: 0,
+    finished: 0
+  };
+}
+
+/* =========================
    FABRIC MODULE
 ========================= */
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
-let fabricEditIndex = null;
-let fabricDetailsIndex = null;
+let editIndex = null;
+let openDetails = null;
 
-/* ADD ROW */
 function addFabricRow(name="", meter="", rate="") {
+
   let div = document.createElement("div");
 
   div.innerHTML = `
@@ -163,14 +209,13 @@ function addFabricRow(name="", meter="", rate="") {
   document.getElementById("fabricContainer").appendChild(div);
 }
 
-/* SAVE */
 function saveInvoice() {
 
   let date = document.getElementById("date").value;
   let party = document.getElementById("party").value;
   let invoice = document.getElementById("invoice").value;
 
-  if (fabricData.find(f => f.invoice === invoice && fabricEditIndex === null)) {
+  if (fabricData.find(f => f.invoice === invoice && editIndex === null)) {
     return alert("Duplicate Invoice!");
   }
 
@@ -199,9 +244,9 @@ function saveInvoice() {
 
   let obj = { date, party, invoice, subtotal, gst, total, fabrics };
 
-  if (fabricEditIndex !== null) {
-    fabricData[fabricEditIndex] = obj;
-    fabricEditIndex = null;
+  if (editIndex !== null) {
+    fabricData[editIndex] = obj;
+    editIndex = null;
   } else {
     fabricData.push(obj);
   }
@@ -212,70 +257,75 @@ function saveInvoice() {
   renderFabricTable();
 }
 
-/* CLEAR */
 function clearFabricForm() {
-  document.getElementById("party").value="";
-  document.getElementById("invoice").value="";
-  document.getElementById("fabricContainer").innerHTML="";
+  document.getElementById("party").value = "";
+  document.getElementById("invoice").value = "";
+  document.getElementById("fabricContainer").innerHTML = "";
   addFabricRow();
 }
 
-/* TABLE */
 function renderFabricTable() {
 
-  let tb = document.getElementById("tableBody");
-  if (!tb) return;
+  let tbody = document.getElementById("tableBody");
+  if (!tbody) return;
 
-  tb.innerHTML="";
+  tbody.innerHTML = "";
 
-  fabricData.forEach((d,i)=>{
+  fabricData.forEach((inv, i) => {
 
-    let open = fabricDetailsIndex===i;
+    let open = openDetails === i;
 
-    tb.innerHTML+=`
-    <tr>
-      <td>${d.date}</td>
-      <td>${d.party}</td>
-      <td>${d.invoice}</td>
-      <td>${d.subtotal.toFixed(2)}</td>
-      <td>${d.gst.toFixed(2)}</td>
-      <td>${d.total.toFixed(2)}</td>
-      <td>
-        <button onclick="editFabric(${i})">Edit</button>
-        <button onclick="deleteFabric(${i})">Delete</button>
-        <button onclick="toggleFabricDetails(${i})">Details</button>
-      </td>
-    </tr>
+    tbody.innerHTML += `
+      <tr>
+        <td>${inv.date}</td>
+        <td>${inv.party}</td>
+        <td>${inv.invoice}</td>
+        <td>${inv.subtotal}</td>
+        <td>${inv.gst}</td>
+        <td>${inv.total}</td>
+        <td>
+          <button onclick="editInvoice(${i})">Edit</button>
+          <button onclick="deleteInvoice(${i})">Delete</button>
+          <button onclick="toggleDetails(${i})">Details</button>
+        </td>
+      </tr>
 
-    ${open ? `<tr><td colspan="7">
-      ${d.fabrics.map(f => 
-        `${f.n} | ${f.m}m x ₹${f.r1.toFixed(2)} = ₹${f.amt.toFixed(2)} + 5% GST = ₹${(f.amt*1.05).toFixed(2)}`
-      ).join("<br>")}
-    </td></tr>` : ""}
+      ${open ? `
+      <tr>
+        <td colspan="7">
+          ${inv.fabrics.map(f =>
+            `${f.n} | ${f.m}m x ₹${f.r1} = ₹${f.amt} + GST = ₹${(f.amt*1.05).toFixed(2)}`
+          ).join("<br>")}
+        </td>
+      </tr>
+      ` : ""}
     `;
   });
 }
 
-function toggleFabricDetails(i){
-  fabricDetailsIndex = fabricDetailsIndex===i?null:i;
+function toggleDetails(i) {
+  openDetails = (openDetails === i) ? null : i;
   renderFabricTable();
 }
 
-function editFabric(i){
-  let d = fabricData[i];
-  fabricEditIndex=i;
+function editInvoice(i) {
+  let inv = fabricData[i];
+  editIndex = i;
 
-  document.getElementById("date").value=d.date;
-  document.getElementById("party").value=d.party;
-  document.getElementById("invoice").value=d.invoice;
+  document.getElementById("date").value = inv.date;
+  document.getElementById("party").value = inv.party;
+  document.getElementById("invoice").value = inv.invoice;
 
-  document.getElementById("fabricContainer").innerHTML="";
-  d.fabrics.forEach(f=>addFabricRow(f.n,f.m,f.r1));
+  document.getElementById("fabricContainer").innerHTML = "";
+
+  inv.fabrics.forEach(f =>
+    addFabricRow(f.n, f.m, f.r1)
+  );
 }
 
-function deleteFabric(i){
-  if(confirm("Delete?")){
-    fabricData.splice(i,1);
+function deleteInvoice(i) {
+  if (confirm("Delete?")) {
+    fabricData.splice(i, 1);
     localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
     renderFabricTable();
   }
@@ -285,10 +335,9 @@ function deleteFabric(i){
    CUTTING MODULE
 ========================= */
 let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
-let cuttingDetailsIndex = null;
 
-/* STOCK */
 function getStock() {
+
   let stock = {};
 
   fabricData.forEach(inv=>{
@@ -307,8 +356,7 @@ function getStock() {
   return stock;
 }
 
-/* ADD ROW */
-function addCuttingRow(data={}) {
+function addCuttingRow() {
 
   let stock = getStock();
 
@@ -316,16 +364,16 @@ function addCuttingRow(data={}) {
 
   div.innerHTML = `
     <select class="fabric">
-      ${Object.keys(stock).map(f=>
+      ${Object.keys(stock).map(f =>
         `<option value="${f}">${f} (Stock: ${stock[f]})</option>`
       )}
     </select>
 
-    <input class="sku" placeholder="SKU" value="${data.sku||""}">
-    <input class="qty" type="number" placeholder="Qty" value="${data.qty||""}">
+    <input class="sku" placeholder="SKU">
+    <input class="qty" type="number" placeholder="Qty">
 
     <div>
-      ${["S","M","L","XL"].map(s=>`
+      ${["S","M","L","XL"].map(s => `
         <label>
           <input type="checkbox" class="size" value="${s}">
           ${s}
@@ -333,7 +381,7 @@ function addCuttingRow(data={}) {
       `).join("")}
     </div>
 
-    <input class="meter" type="number" placeholder="Meter Used" value="${data.meter||""}">
+    <input class="meter" type="number" placeholder="Meter Used">
 
     <button onclick="this.parentElement.remove()">Remove</button>
   `;
@@ -341,14 +389,13 @@ function addCuttingRow(data={}) {
   document.getElementById("cuttingContainer").appendChild(div);
 }
 
-/* SAVE */
 function saveCutting() {
 
   let date = document.getElementById("cutDate").value;
 
-  let rows=[];
-  let totalPcs=0;
-  let totalMeter=0;
+  let rows = [];
+  let totalPcs = 0;
+  let totalMeter = 0;
 
   document.querySelectorAll("#cuttingContainer div").forEach(r=>{
 
@@ -357,15 +404,15 @@ function saveCutting() {
     let qty = +r.querySelector(".qty").value;
     let meter = +r.querySelector(".meter").value;
 
-    let sizes=[];
+    let sizes = [];
     r.querySelectorAll(".size:checked").forEach(c=>sizes.push(c.value));
 
     if(fabric && sku && qty && sizes.length){
       let pcs = qty * sizes.length;
-      totalPcs+=pcs;
-      totalMeter+=meter;
+      totalPcs += pcs;
+      totalMeter += meter;
 
-      rows.push({fabric,sku,qty,sizes,pcs,meter});
+      rows.push({ fabric, sku, qty, sizes, pcs, meter });
     }
   });
 
@@ -373,7 +420,7 @@ function saveCutting() {
     return alert("Fill all fields");
   }
 
-  cuttingData.push({date,rows,totalPcs,totalMeter});
+  cuttingData.push({ date, rows, totalPcs, totalMeter });
 
   localStorage.setItem("cuttingData", JSON.stringify(cuttingData));
 
@@ -382,41 +429,39 @@ function saveCutting() {
   renderCuttingTable();
 }
 
-/* TABLE */
 function renderCuttingTable(){
 
-  let tb=document.getElementById("cuttingTable");
-  if(!tb) return;
+  let tb = document.getElementById("cuttingTable");
+  if (!tb) return;
 
-  tb.innerHTML="";
+  tb.innerHTML = "";
 
   cuttingData.forEach((c,i)=>{
 
-    let open=cuttingDetailsIndex===i;
-
-    tb.innerHTML+=`
-    <tr>
+    tb.innerHTML += `
+    <tr onclick="toggleCutting(${i})">
       <td>${c.date}</td>
       <td>${c.totalPcs}</td>
       <td>${c.totalMeter}</td>
       <td>
-        <button onclick="deleteCutting(${i})">Delete</button>
-        <button onclick="toggleCutting(${i})">Details</button>
+        <button onclick="event.stopPropagation(); deleteCutting(${i})">Delete</button>
       </td>
     </tr>
 
-    ${open?`<tr><td colspan="4">
-      ${c.rows.map(r=>`
-        ${r.fabric} | SKU:${r.sku} | PCS:${r.pcs} | Meter:${r.meter}
-      `).join("<br>")}
-    </td></tr>`:""}
+    <tr id="cut-${i}" style="display:none">
+      <td colspan="4">
+        ${c.rows.map(r =>
+          `${r.fabric} | SKU:${r.sku} | PCS:${r.pcs} | Meter:${r.meter}`
+        ).join("<br>")}
+      </td>
+    </tr>
     `;
   });
 }
 
 function toggleCutting(i){
-  cuttingDetailsIndex = cuttingDetailsIndex===i?null:i;
-  renderCuttingTable();
+  let r = document.getElementById("cut-"+i);
+  r.style.display = r.style.display==="none"?"table-row":"none";
 }
 
 function deleteCutting(i){
@@ -428,10 +473,10 @@ function deleteCutting(i){
 }
 
 /* =========================
-   ACTIVE MENU
+   CLEAR ALL
 ========================= */
-function setActive(page) {
-  document.querySelectorAll(".menu a").forEach(a => {
-    a.classList.toggle("active", a.dataset.page === page);
-  });
+function clearAll() {
+  localStorage.clear();
+  alert("Cleared");
+  location.reload();
 }
