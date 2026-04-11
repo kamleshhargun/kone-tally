@@ -63,23 +63,28 @@ function loadPage(page) {
     `;
   }
 
-  /* FABRIC PAGE (INTEGRATED PURCHASE SYSTEM) */
+  /* =========================
+     FABRIC PAGE (UPDATED FULL)
+  ========================= */
   if (page === "fabric") {
+
     content.innerHTML = `
       <h2>Fabric Purchase</h2>
 
+      <!-- STOCK ADD -->
       <input id="fabQty" type="number" placeholder="Add Fabric Qty">
-      <button onclick="addFabric()">Add Fabric Stock</button>
+      <button onclick="addFabric()">Add Stock</button>
 
       <hr>
 
-      <h3>Fabric Purchase Entry</h3>
+      <!-- INVOICE SECTION -->
+      <h3>Purchase Entry</h3>
 
-      <div>
+      <div class="row">
+        <input id="date" type="date">
         <input id="party" placeholder="Party Name">
         <input id="invoice" placeholder="Invoice No">
-        <input id="date" type="date">
-        <input id="gst" type="number" placeholder="GST %">
+        <input id="gst" value="5" readonly>
       </div>
 
       <div id="fabricContainer"></div>
@@ -89,18 +94,28 @@ function loadPage(page) {
 
       <hr>
 
+      <!-- TABLE -->
       <h3>Saved Invoices</h3>
+
       <table border="1" width="100%">
         <thead>
           <tr>
+            <th>Date</th>
             <th>Party</th>
             <th>Invoice</th>
+            <th>Subtotal</th>
+            <th>GST</th>
             <th>Total</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
     `;
+
+    // AUTO DATE
+    document.getElementById("date").value =
+      new Date().toISOString().split("T")[0];
 
     addFabricRow();
     renderFabricTable();
@@ -170,7 +185,7 @@ function setActive(page) {
 }
 
 /* =========================
-   INVENTORY SYSTEM
+   INVENTORY
 ========================= */
 function getInventory() {
   return JSON.parse(localStorage.getItem("inventory")) || {
@@ -248,11 +263,13 @@ function returnStock() {
 }
 
 /* =========================
-   FABRIC PURCHASE MODULE
+   FABRIC PURCHASE SYSTEM (UPDATED)
 ========================= */
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+let editIndex = null;
 
-function addFabricRow(name="", meter="", rate="") {
+/* ROW */
+function addFabricRow(name = "", meter = "", rate = "") {
   let div = document.createElement("div");
 
   div.innerHTML = `
@@ -264,12 +281,13 @@ function addFabricRow(name="", meter="", rate="") {
   document.getElementById("fabricContainer").appendChild(div);
 }
 
+/* SAVE */
 function saveInvoice() {
 
+  let date = document.getElementById("date").value;
   let party = document.getElementById("party").value;
   let invoice = document.getElementById("invoice").value;
-  let date = document.getElementById("date").value;
-  let gst = Number(document.getElementById("gst").value) || 0;
+  let gst = 5;
 
   let fabrics = [];
   let subtotal = 0;
@@ -282,26 +300,36 @@ function saveInvoice() {
 
     let amount = meter * rate;
 
-    if (name) {
+    if (name && meter && rate) {
       fabrics.push({ name, meter, rate, amount });
       subtotal += amount;
     }
   });
 
+  if (!party || !invoice || fabrics.length === 0) {
+    return alert("Fill all fields");
+  }
+
   let gstAmount = subtotal * gst / 100;
   let total = subtotal + gstAmount;
 
-  fabricData.push({ party, invoice, date, gst, fabrics, subtotal, gstAmount, total });
+  let obj = { date, party, invoice, fabrics, subtotal, gstAmount, total };
+
+  if (editIndex !== null) {
+    fabricData[editIndex] = obj;
+    editIndex = null;
+  } else {
+    fabricData.push(obj);
+  }
 
   localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
 
-  alert("Invoice Saved");
+  alert("Saved");
+
   renderFabricTable();
 }
 
-/* =========================
-   RENDER TABLE
-========================= */
+/* TABLE */
 function renderFabricTable() {
 
   let tbody = document.getElementById("tableBody");
@@ -309,15 +337,50 @@ function renderFabricTable() {
 
   tbody.innerHTML = "";
 
-  fabricData.forEach(inv => {
+  fabricData.forEach((inv, i) => {
+
     tbody.innerHTML += `
       <tr>
+        <td>${inv.date}</td>
         <td>${inv.party}</td>
         <td>${inv.invoice}</td>
-        <td>₹${inv.total}</td>
+        <td>${inv.subtotal.toFixed(2)}</td>
+        <td>${inv.gstAmount.toFixed(2)}</td>
+        <td>${inv.total.toFixed(2)}</td>
+
+        <td>
+          <button onclick="editInvoice(${i})">Edit</button>
+          <button onclick="deleteInvoice(${i})">Delete</button>
+        </td>
       </tr>
     `;
   });
+}
+
+/* EDIT */
+function editInvoice(i) {
+  let inv = fabricData[i];
+  editIndex = i;
+
+  document.getElementById("date").value = inv.date;
+  document.getElementById("party").value = inv.party;
+  document.getElementById("invoice").value = inv.invoice;
+
+  document.getElementById("fabricContainer").innerHTML = "";
+
+  inv.fabrics.forEach(f => {
+    addFabricRow(f.name, f.meter, f.rate);
+  });
+}
+
+/* DELETE */
+function deleteInvoice(i) {
+
+  if (confirm("Delete?")) {
+    fabricData.splice(i, 1);
+    localStorage.setItem("fabricInvoices", JSON.stringify(fabricData));
+    renderFabricTable();
+  }
 }
 
 /* =========================
