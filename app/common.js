@@ -718,7 +718,7 @@ if (page === "return") {
   addReturnRow();
   renderReturnTable();
 }
-}
+
 /* ===== DATA ===== */
 let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
 let returnEditIndex = null;
