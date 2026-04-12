@@ -1,7 +1,6 @@
 /* =========================
    GLOBAL DATA (ONLY ONCE)
 ========================= */
-
 let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
@@ -127,10 +126,8 @@ function loadPage(page) {
       `;
     }
   }
-
-
-  /* ================= FABRIC ================= */
-else if (page === "fabric") {
+/* ================= FABRIC ================= */
+if (page === "fabric") {
 
   content.innerHTML = `
     <h2>Fabric Purchase</h2>
@@ -167,7 +164,7 @@ else if (page === "fabric") {
 }
 
 /* ================= CUTTING ================= */
-else if (page === "cutting") {
+if (page === "cutting") {
 
   content.innerHTML = `
     <h2>Cutting</h2>
@@ -202,7 +199,7 @@ else if (page === "cutting") {
 }
 
 /* ================= STITCHING ================= */
-else if (page === "stitching") {
+if (page === "stitching") {
 
   content.innerHTML = `
     <h2>Stitching</h2>
@@ -240,12 +237,14 @@ else if (page === "stitching") {
 }
 
 /* ===== GLOBAL DATA (NO DUPLICATE DECLARE) ===== */
+let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
 let stitchEditIndex = null;
 
 /* ===== GET READY STOCK ===== */
 function getReadyStock() {
 
   let stock = {};
+  let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 
   cuttingData.forEach(c=>{
     c.rows.forEach(r=>{
@@ -357,7 +356,7 @@ function clearStitchForm(){
 }
 
 /* ================= FINISHED ================= */
-else if (page === "finished") {
+if (page === "finished") {
 
   content.innerHTML = `
     <h2>Finished</h2>
@@ -392,7 +391,9 @@ else if (page === "finished") {
   loadLabours();
   renderFinishedTable();
 }
+
 /* ===== FINISHED DATA ===== */
+let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
 let finishedEditIndex = null;
 
 /* ===== LOAD LABOURS ===== */
@@ -460,9 +461,8 @@ function loadPending() {
     }
   }
 }
-
- /* ================= SALES ================= */
-else if (page === "sales") {
+   /* ================= SALES ================= */
+if (page === "sales") {
 
   content.innerHTML = `
     <h2>Sales</h2>
@@ -502,6 +502,7 @@ else if (page === "sales") {
 }
 
 /* ===== DATA ===== */
+let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
 let saleEditIndex = null;
 
 /* ===== ADD ROW ===== */
@@ -681,7 +682,7 @@ function clearSaleForm() {
 }
 
 /* ================= RETURN ================= */
-else if (page === "return") {
+if (page === "return") {
 
   content.innerHTML = `
     <h2>Return</h2>
@@ -717,8 +718,9 @@ else if (page === "return") {
   addReturnRow();
   renderReturnTable();
 }
-
+}
 /* ===== DATA ===== */
+let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
 let returnEditIndex = null;
 
 /* ===== ADD ROW ===== */
@@ -853,10 +855,10 @@ function clearReturnForm() {
 
   addReturnRow();
 }
-  
    /* ================= OTHER ================= */
-else if (page === "settings") {
+if (page === "settings") {
   content.innerHTML = `<button onclick="clearAll()">Clear Data</button>`;
+}
 }
 
 /* =========================
@@ -901,6 +903,7 @@ function getInventory() {
 /* =========================
    FABRIC MODULE
 ========================= */
+let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
 let editIndex = null;
 let openDetails = null;
 
@@ -972,7 +975,6 @@ function clearFabricForm() {
   document.getElementById("fabricContainer").innerHTML = "";
   addFabricRow();
 }
-
 function renderFabricTable() {
 
   let tbody = document.getElementById("tableBody");
@@ -1043,6 +1045,7 @@ function deleteInvoice(i) {
 /* =========================
    CUTTING MODULE
 ========================= */
+let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
 
 function getStock() {
 
@@ -1081,7 +1084,7 @@ function addCuttingRow() {
     <input class="qty" type="number" placeholder="Qty">
 
     <div>
-      ${["S","M","L","XL"].map(s => `
+      ${["XS","S","M","L","XL","2XL","3XL","4XL","5XL","6XL"].map(s => `
         <label>
           <input type="checkbox" class="size" value="${s}">
           ${s}
@@ -1166,7 +1169,6 @@ function renderCuttingTable(){
     `;
   });
 }
-
 function toggleCutting(i){
   let r = document.getElementById("cut-"+i);
   r.style.display = r.style.display==="none"?"table-row":"none";
@@ -1179,7 +1181,6 @@ function deleteCutting(i){
     renderCuttingTable();
   }
 }
-
 /* =========================
    CLEAR ALL
 ========================= */
