@@ -1,104 +1,83 @@
-# 🏭 Production KONE (Garment / Manufacturing)
+# 🧵 KONE ERP System
 
-## 📌 Overview
-
-Production KONE ek simple web-based system hai jo garment/manufacturing workflow ko manage karta hai.
-
-Ye system **pure frontend (HTML, CSS, JavaScript)** pe based hai aur **LocalStorage** use karta hai data store karne ke liye — koi backend required nahi hai.
+A simple and powerful browser-based ERP system for managing garment workflow including fabric purchase, cutting, stitching, finished goods, sales, returns, and inventory.
 
 ---
 
 ## 🚀 Features
 
-* 📊 Dashboard Overview
+* 📊 Dashboard overview (Purchase, Cutting, Stitching, Sales, Inventory)
 * 🧵 Fabric Purchase Management
-* ✂️ Cutting Management
-* 🪡 Stitching Tracking
-* 📦 Finished Goods Management
-* 💰 Sales Management
-* 🔄 Return Handling
-* ⚙️ Settings Panel
+* ✂️ Cutting Management (SKU + Size wise)
+* 🧶 Stitching Management (Labour based)
+* 📦 Finished Goods Tracking
+* 🛒 Sales Management (Auto stock deduction)
+* 🔄 Return Management (Auto stock add)
+* 📦 Inventory Tracking (Auto calculated)
+* 💾 Data stored in LocalStorage (No backend required)
+
+
+## ⚙️ How to Run
+
+1. Download or clone the repository
+2. Open `app/index.html` in your browser
+3. Start using the ERP system
 
 ---
 
-## 🧠 Data Flow
+## ⚠️ Important Notes
 
-Fabric → Cutting → Stitching → Finished → Sales → Inventory
-
-* Cutting consumes Fabric
-* Stitching consumes Cutting
-* Finished adds to Inventory
-* Sales reduces Inventory
+* No backend required
+* Works completely in browser
+* Data is stored in **localStorage**
+* Clearing browser data will delete all records
 
 ---
 
-## 💻 Tech Stack
+## 🔧 Tech Stack
 
 * HTML
 * CSS
 * JavaScript (Vanilla JS)
-* LocalStorage (Client-side database)
 
 ---
 
-## 📂 Project Structure
+## 🧠 Usage Flow
 
-```
-common.js        → All reusable JS functions  
-style.css        → Common styling  
-
-index.html       → Dashboard  
-fabric.html      → Fabric module  
-cutting.html     → Cutting module  
-stiching.html    → Stitching module  
-furnished.html   → Finished goods  
-sales.html       → Sales module  
-return.html      → Return module  
-setting.html     → Settings  
-```
+1. Add Fabric Purchase
+2. Create Cutting entries
+3. Do Stitching (Labour wise)
+4. Move to Finished
+5. Sell products
+6. Handle Returns
+7. Track Inventory automatically
 
 ---
 
-## ⚙️ How to Use
+## ❌ Known Limitations
 
-1. Project download / clone kare
-2. Kisi bhi browser me `index.html` open kare
-3. Sidebar se modules use kare
-4. Data automatically browser me save ho jayega
-
----
-
-## 💾 Data Storage
-
-* Saara data browser ke **LocalStorage** me store hota hai
-* Clear hone par data delete ho jayega
+* No cloud sync (data stored locally)
+* No login/auth system
+* Works on single device/browser only
 
 ---
 
-## ⚠️ Limitations
+## 🚀 Future Improvements
 
-* No backend (data secure nahi hai)
-* Multi-user support nahi hai
-* Sirf single device ke liye
-
----
-
-## 🚀 Future Scope
-
-* Google Sheets / API Integration
-* User Login System
-* Cloud Storage
-* Mobile Responsive UI
-* Reports & Analytics
+* Google Sheet / Cloud Sync
+* Multi-user system
+* Reports & analytics
+* Export to Excel
+* UI improvements
 
 ---
 
-## 👨‍💻 Developer
+## 👨‍💻 Author
 
-Developed by: **Kamlesh Hargun**
+Developed by **KONE ERP User**
 
 ---
 
-## 📜 License
+## ⭐ Support
 
-Free to use for personal & learning purpose
+If you like this project, consider giving it a ⭐ on GitHub!
