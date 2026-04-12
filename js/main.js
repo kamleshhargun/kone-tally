@@ -1,71 +1,70 @@
-/* GLOBAL DATA */
-let fabricData = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
-let cuttingData = JSON.parse(localStorage.getItem("cuttingData")) || [];
-let stitchingData = JSON.parse(localStorage.getItem("stitchingData")) || [];
-let finishedData = JSON.parse(localStorage.getItem("finishedData")) || [];
-let salesData = JSON.parse(localStorage.getItem("salesData")) || [];
-let returnData = JSON.parse(localStorage.getItem("returnData")) || [];
-let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+// ================= DASHBOARD =================
+function loadDashboard() {
 
-/* INIT */
-document.addEventListener("DOMContentLoaded", () => {
-let savedPage = localStorage.getItem("activePage") || "dashboard";
-loadLayout(savedPage);
-setupKeyboard();
-});
+  let content = document.getElementById("content");
 
-/* LAYOUT */
-function loadLayout(defaultPage) {
-document.getElementById("app").innerHTML = `
+  // ===== UI =====
+  content.innerHTML = `
+    <h2>Dashboard</h2>
 
-  <div class="sidebar">
-    <h2>KONE ERP</h2>
-    <div class="menu">
-      <a data-page="dashboard">Dashboard</a>
-      <a data-page="fabric">Fabric</a>
-      <a data-page="cutting">Cutting</a>
-      <a data-page="stitching">Stitching</a>
-      <a data-page="finished">Finished</a>
-      <a data-page="sales">Sales</a>
-      <a data-page="return">Return</a>
-      <a data-page="settings">Settings</a>
+    <div class="grid">
+      <div class="card">Purchase <h2 id="purchase"></h2></div>
+      <div class="card">Cutting <h2 id="cutting"></h2></div>
+      <div class="card">Stitching <h2 id="stitching"></h2></div>
+      <div class="card">Sales <h2 id="sales"></h2></div>
+      <div class="card">Inventory <h2 id="inventory"></h2></div>
     </div>
-  </div>
-  <div class="main"><div id="content"></div></div>
+
+    <hr>
+
+    <h3>Stock Details</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Qty</th>
+        </tr>
+      </thead>
+      <tbody id="stockTable"></tbody>
+    </table>
   `;
 
-document.querySelectorAll(".menu a").forEach(a=>{
-a.onclick = ()=>loadPage(a.dataset.page);
-});
+  // ===== DATA =====
+  let purchase = JSON.parse(localStorage.getItem("fabricInvoices")) || [];
+  let cutting = JSON.parse(localStorage.getItem("cuttingData")) || [];
+  let stitching = JSON.parse(localStorage.getItem("stitchingData")) || [];
+  let sales = JSON.parse(localStorage.getItem("salesData")) || [];
+  let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
 
-loadPage(defaultPage);
-}
+  // ===== CALC =====
+  let purchaseTotal = purchase.length;
+  let cuttingTotal = cutting.reduce((a,b)=>a+(b.totalPcs||0),0);
+  let stitchingTotal = stitching.reduce((a,b)=>a+(b.total||0),0);
+  let salesTotal = sales.reduce((a,b)=>a+(b.total||0),0);
 
-/* ROUTER */
-function loadPage(page){
-localStorage.setItem("activePage", page);
-setActive(page);
+  let inventoryTotal = 0;
+  for(let k in inventory){
+    inventoryTotal += inventory[k];
+  }
 
-let content = document.getElementById("content");
-content.innerHTML = "";
+  // ===== SHOW =====
+  document.getElementById("purchase").innerText = purchaseTotal;
+  document.getElementById("cutting").innerText = cuttingTotal;
+  document.getElementById("stitching").innerText = stitchingTotal;
+  document.getElementById("sales").innerText = salesTotal;
+  document.getElementById("inventory").innerText = inventoryTotal;
 
-if(page==="dashboard"){
-let total = Object.values(inventory).reduce((a,b)=>a+b,0);
-content.innerHTML = `<h2>Dashboard Stock: ${total}</h2>`;
-}
+  // ===== STOCK TABLE =====
+  let tbody = document.getElementById("stockTable");
+  tbody.innerHTML = "";
 
-if(page==="fabric") renderFabricPage();
-if(page==="cutting") renderCuttingPage();
-if(page==="stitching") renderStitchPage();
-if(page==="finished") renderFinishedPage();
-if(page==="sales") renderSalesPage();
-if(page==="return") renderReturnPage();
-if(page==="settings") content.innerHTML = `<button onclick="clearAll()">Clear</button>`;
-}
-
-/* ACTIVE */
-function setActive(page){
-document.querySelectorAll(".menu a").forEach(a=>{
-a.classList.toggle("active", a.dataset.page===page);
-});
+  for(let k in inventory){
+    tbody.innerHTML += `
+      <tr>
+        <td>${k}</td>
+        <td>${inventory[k]}</td>
+      </tr>
+    `;
+  }
 }
