@@ -77,7 +77,7 @@ function loadPage(page) {
 
     let inventoryTotal = 0;
     for(let k in inventory){
-      inventoryTotal += inventory[k]};
+      inventoryTotal += inventory[k];
     }
 
     // ===== UI =====
