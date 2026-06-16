@@ -1,258 +1,128 @@
-/* =========================
-   GLOBAL (WIN 98 LOOK)
-========================= */
-body {
-  margin: 0;
-  font-family: Tahoma, Arial;
-  background: #c0c0c0;
-  color: #000;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
-/* =========================
-   SIDEBAR
-========================= */
-.sidebar {
-  width: 220px;
-  height: 100vh;
-  position: fixed;
-  background: #c0c0c0;
-  border-right: 2px solid #fff;
-  box-shadow: inset -2px -2px 0 #808080;
-  padding: 10px;
-  overflow-y: auto;
+body{
+background:#f5f6fa;
 }
 
-.sidebar h2 {
-  font-size: 16px;
-  margin-bottom: 15px;
-  padding: 6px;
-  background: #000080;
-  color: #fff;
-  text-align: center;
+.container{
+display:flex;
+min-height:100vh;
 }
 
-/* MENU */
-.menu a {
-  display: block;
-  padding: 8px;
-  margin-bottom: 6px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  text-decoration: none;
-  color: #000;
-  font-weight: bold;
-  transition: 0.1s;
+.sidebar{
+width:250px;
+background:#1e293b;
+color:white;
+padding:20px;
 }
 
-.menu a:hover {
-  background: #dcdcdc;
+.sidebar h2{
+margin-bottom:30px;
+text-align:center;
 }
 
-.menu a.active {
-  background: #000080;
-  color: #fff;
-  border-color: #808080 #fff #fff #808080;
+.sidebar ul{
+list-style:none;
 }
 
-/* =========================
-   MAIN AREA
-========================= */
-.main {
-  margin-left: 240px;
-  padding: 20px;
+.sidebar li{
+margin:12px 0;
 }
 
-/* =========================
-   HEADINGS
-========================= */
-h2 {
-  background: #000080;
-  color: #fff;
-  padding: 6px 10px;
-  display: inline-block;
-  font-size: 16px;
+.sidebar a{
+color:white;
+text-decoration:none;
+display:block;
+padding:10px;
+border-radius:6px;
 }
 
-h3 {
-  margin-top: 20px;
+.sidebar a:hover{
+background:#334155;
 }
 
-/* =========================
-   CARD (DASHBOARD)
-========================= */
-.card {
-  background: #c0c0c0;
-  padding: 15px;
-  margin: 10px;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  width: 160px;
-  text-align: center;
-  font-weight: bold;
-  transition: 0.15s;
+.main{
+flex:1;
+padding:25px;
 }
 
-.card h2 {
-  margin-top: 10px;
-  font-size: 20px;
+.header{
+margin-bottom:20px;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  background: #dcdcdc;
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
 }
 
-.grid {
-  display: flex;
-  flex-wrap: wrap;
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-/* =========================
-   INPUT
-========================= */
-input, select {
-  padding: 6px;
-  margin: 5px;
-  border: 2px solid;
-  border-color: #808080 #fff #fff #808080;
-  background: #fff;
-  font-family: Tahoma;
-  min-width: 120px;
-  outline: none;
+.card h3{
+margin-bottom:10px;
+font-size:18px;
 }
 
-input:focus, select:focus {
-  border-color: #000080 #fff #fff #000080;
+.card h2{
+font-size:32px;
 }
 
-/* =========================
-   BUTTON
-========================= */
-button {
-  padding: 6px 12px;
-  margin: 5px;
-  background: #c0c0c0;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.1s;
+.quick-actions{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:30px;
 }
 
-button:hover {
-  background: #dcdcdc;
+.buttons{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:15px;
 }
 
-button:active {
-  border-color: #808080 #fff #fff #808080;
+.btn{
+padding:10px 20px;
+background:#2563eb;
+color:white;
+text-decoration:none;
+border-radius:6px;
 }
 
-/* =========================
-   TABLE
-========================= */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #c0c0c0;
-  margin-top: 10px;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
+.btn:hover{
+background:#1d4ed8;
 }
 
-th {
-  background: #000080;
-  color: #fff;
-  padding: 8px;
-  border: 1px solid #000;
-  font-size: 13px;
+.table-section{
+background:white;
+padding:20px;
+border-radius:10px;
 }
 
-td {
-  padding: 8px;
-  border: 1px solid #000;
-  background: #e0e0e0;
-  font-size: 13px;
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
 }
 
-tr:hover td {
-  background: #c8d8ff;
+table th,
+table td{
+padding:12px;
+border:1px solid #ddd;
+text-align:left;
 }
 
-/* =========================
-   FORM ROW
-========================= */
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 5px;
-}
-
-/* =========================
-   FABRIC ROW
-========================= */
-.fabric-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 5px;
-}
-
-/* =========================
-   HR
-========================= */
-hr {
-  border: none;
-  border-top: 2px solid #808080;
-  border-bottom: 2px solid #fff;
-  margin: 15px 0;
-}
-
-/* =========================
-   POPUP
-========================= */
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.popup-box {
-  background: #c0c0c0;
-  padding: 15px;
-  width: 300px;
-  border: 2px solid;
-  border-color: #fff #808080 #808080 #fff;
-}
-
-.popup-box h3 {
-  margin: 0;
-  margin-bottom: 10px;
-  padding: 5px;
-  background: #000080;
-  color: #fff;
-  font-size: 14px;
-}
-
-/* =========================
-   SCROLLBAR (BONUS 😎)
-========================= */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: #c0c0c0;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #808080;
-  border: 2px solid #c0c0c0;
+table th{
+background:#f1f5f9;
 }
