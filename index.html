@@ -1,25 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>KONE ERP System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KONE ERP Dashboard</title>
 
-  <link rel="stylesheet" href="app/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-  <div id="app"></div>
+<div class="container">
 
-  <!-- JS FILES (CORRECT PATH) -->
-  <script src="js/utils.js"></script>
-  <script src="js/fabric.js"></script>
-  <script src="js/cutting.js"></script>
-  <script src="js/stitching.js"></script>
-  <script src="js/finished.js"></script>
-  <script src="js/sales.js"></script>
-  <script src="js/return.js"></script>
-  <script src="js/main.js"></script>
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <h2>KONE ERP</h2>
+
+        <ul>
+
+            <li><a href="index.html">🏠 Dashboard</a></li>
+
+            <li><a href="fabric.html">🧵 Fabric Purchase</a></li>
+
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+
+            <li><a href="finished.html">📦 Finished Goods</a></li>
+
+            <li><a href="inventory.html">📋 Inventory</a></li>
+
+            <li><a href="sales.html">💰 Sales</a></li>
+
+            <li><a href="returns.html">↩ Returns</a></li>
+
+            <li><a href="reports.html">📊 Reports</a></li>
+
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="header">
+
+            <h1>Dashboard</h1>
+
+            <p>Garment ERP Management System</p>
+
+        </header>
+
+        <!-- Cards -->
+
+        <section class="cards">
+
+            <div class="card">
+                <h3>Total Fabric</h3>
+                <h2 id="fabricCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Cutting</h3>
+                <h2 id="cuttingCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Stitching</h3>
+                <h2 id="stitchingCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>Finished Stock</h3>
+                <h2 id="finishedCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>Total Sales</h3>
+                <h2 id="salesCount">0</h2>
+            </div>
+
+            <div class="card">
+                <h3>Returns</h3>
+                <h2 id="returnCount">0</h2>
+            </div>
+
+        </section>
+
+        <!-- Quick Actions -->
+
+        <section class="quick-actions">
+
+            <h2>Quick Actions</h2>
+
+            <div class="buttons">
+
+                <a href="fabric.html" class="btn">New Fabric</a>
+
+                <a href="cutting.html" class="btn">New Cutting</a>
+
+                <a href="stitching.html" class="btn">New Stitching</a>
+
+                <a href="sales.html" class="btn">New Sale</a>
+
+            </div>
+
+        </section>
+
+        <!-- Recent Activity -->
+
+        <section class="table-section">
+
+            <h2>Recent Activity</h2>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Date</th>
+
+                        <th>Module</th>
+
+                        <th>Description</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="activityTable">
+
+                    <tr>
+
+                        <td colspan="3">
+
+                            No Activity Found
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/dashboard.js"></script>
 
 </body>
 </html>
