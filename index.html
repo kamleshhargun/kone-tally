@@ -1,44 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KONE ERP Dashboard</title>
 
-    <link rel="stylesheet" href="css/style.css">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KONE ERP Dashboard</title>
+
+<link rel="stylesheet" href="assets/css/common.css">
+<link rel="stylesheet" href="assets/css/dashboard.css">
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
 
     <!-- Sidebar -->
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
 
-        <h2>KONE ERP</h2>
+        <div class="logo">
+            KONE ERP
+        </div>
 
         <ul>
 
-            <li><a href="index.html">🏠 Dashboard</a></li>
+            <li>
+                <a href="../index.html" class="active">
+                    🏠 Dashboard
+                </a>
+            </li>
 
-            <li><a href="fabric.html">🧵 Fabric Purchase</a></li>
+            <li>
+                <a href="pages/fabric.html">
+                    🧵 Fabric
+                </a>
+            </li>
 
-            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li>
+                <a href="pages/cutting.html">
+                    ✂️ Cutting
+                </a>
+            </li>
 
-            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li>
+                <a href="pages/stitching.html">
+                    🪡 Stitching
+                </a>
+            </li>
 
-            <li><a href="finished.html">📦 Finished Goods</a></li>
+            <li>
+                <a href="pages/finished.html">
+                    📦 Finished
+                </a>
+            </li>
 
-            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li>
+                <a href="pages/inventory.html">
+                    📋 Inventory
+                </a>
+            </li>
 
-            <li><a href="sales.html">💰 Sales</a></li>
+            <li>
+                <a href="pages/sales.html">
+                    💰 Sales
+                </a>
+            </li>
 
-            <li><a href="returns.html">↩ Returns</a></li>
+            <li>
+                <a href="pages/returns.html">
+                    ↩ Returns
+                </a>
+            </li>
 
-            <li><a href="reports.html">📊 Reports</a></li>
+            <li>
+                <a href="pages/reports.html">
+                    📊 Reports
+                </a>
+            </li>
 
-            <li><a href="settings.html">⚙ Settings</a></li>
+            <li>
+                <a href="pages/settings.html">
+                    ⚙ Settings
+                </a>
+            </li>
 
         </ul>
 
@@ -48,107 +95,243 @@
 
     <main class="main">
 
-        <header class="header">
+        <!-- Navbar -->
 
-            <h1>Dashboard</h1>
+        <header class="navbar">
 
-            <p>Garment ERP Management System</p>
+            <div class="nav-left">
+
+                <div class="menu-btn" onclick="toggleSidebar()">
+                    ☰
+                </div>
+
+                <h2>Dashboard</h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                    type="text"
+                    class="search-box"
+                    placeholder="Search..."
+                >
+
+                <span>🔔</span>
+
+                <span>👤 Admin</span>
+
+            </div>
 
         </header>
 
-        <!-- Cards -->
+        <!-- Content -->
 
-        <section class="cards">
+        <section class="content">
 
-            <div class="card">
-                <h3>Total Fabric</h3>
-                <h2 id="fabricCount">0</h2>
+            <!-- Stats Cards -->
+
+            <div class="cards">
+
+                <div class="card">
+                    <div class="card-title">
+                        Total Fabric
+                    </div>
+
+                    <div class="card-value" id="fabricCount">
+                        0
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Total Cutting
+                    </div>
+
+                    <div class="card-value" id="cuttingCount">
+                        0
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Total Stitching
+                    </div>
+
+                    <div class="card-value" id="stitchingCount">
+                        0
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Finished Goods
+                    </div>
+
+                    <div class="card-value" id="finishedCount">
+                        0
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Inventory
+                    </div>
+
+                    <div class="card-value" id="inventoryCount">
+                        0
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Sales
+                    </div>
+
+                    <div class="card-value" id="salesCount">
+                        0
+                    </div>
+                </div>
+
             </div>
 
-            <div class="card">
-                <h3>Total Cutting</h3>
-                <h2 id="cuttingCount">0</h2>
-            </div>
+            <!-- Quick Actions -->
 
-            <div class="card">
-                <h3>Total Stitching</h3>
-                <h2 id="stitchingCount">0</h2>
-            </div>
+            <div class="card mt-20">
 
-            <div class="card">
-                <h3>Finished Stock</h3>
-                <h2 id="finishedCount">0</h2>
-            </div>
+                <h3>
+                    Quick Actions
+                </h3>
 
-            <div class="card">
-                <h3>Total Sales</h3>
-                <h2 id="salesCount">0</h2>
-            </div>
+                <br>
 
-            <div class="card">
-                <h3>Returns</h3>
-                <h2 id="returnCount">0</h2>
-            </div>
+                <button class="btn btn-primary">
+                    New Fabric
+                </button>
 
-        </section>
-
-        <!-- Quick Actions -->
-
-        <section class="quick-actions">
-
-            <h2>Quick Actions</h2>
-
-            <div class="buttons">
-
-                <a href="fabric.html" class="btn">New Fabric</a>
-
-                <a href="cutting.html" class="btn">New Cutting</a>
-
-                <a href="stitching.html" class="btn">New Stitching</a>
-
-                <a href="sales.html" class="btn">New Sale</a>
+                <button class="btn btn-success">
+                    New Sale
+                </button>
 
             </div>
 
-        </section>
+            <!-- Recent Activity -->
 
-        <!-- Recent Activity -->
+            <div class="card mt-20">
 
-        <section class="table-section">
+                <h3>
+                    Recent Activities
+                </h3>
 
-            <h2>Recent Activity</h2>
+                <br>
 
-            <table>
+                <div class="table-wrapper">
 
-                <thead>
+                    <table>
 
-                    <tr>
+                        <thead>
 
-                        <th>Date</th>
+                        <tr>
 
-                        <th>Module</th>
+                            <th>Date</th>
 
-                        <th>Description</th>
+                            <th>Module</th>
 
-                    </tr>
+                            <th>Description</th>
 
-                </thead>
+                        </tr>
 
-                <tbody id="activityTable">
+                        </thead>
 
-                    <tr>
+                        <tbody id="activityTable">
 
-                        <td colspan="3">
+                        <tr>
 
-                            No Activity Found
+                            <td>
+                                --
+                            </td>
 
-                        </td>
+                            <td>
+                                Dashboard
+                            </td>
 
-                    </tr>
+                            <td>
+                                No Activity Found
+                            </td>
 
-                </tbody>
+                        </tr>
 
-            </table>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Low Stock -->
+
+            <div class="card mt-20">
+
+                <h3>
+                    Low Stock Alert
+                </h3>
+
+                <br>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+
+                            <th>Product</th>
+
+                            <th>Stock</th>
+
+                            <th>Status</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <tr>
+
+                            <td>
+                                SKU001
+                            </td>
+
+                            <td>
+                                Sample Product
+                            </td>
+
+                            <td>
+                                5
+                            </td>
+
+                            <td>
+
+                                <span class="badge badge-danger">
+                                    Low
+                                </span>
+
+                            </td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </section>
 
@@ -156,7 +339,8 @@
 
 </div>
 
-<script src="js/dashboard.js"></script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/dashboard.js"></script>
 
 </body>
 </html>
