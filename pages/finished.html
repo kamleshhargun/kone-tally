@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Finished Goods - KONE ERP</title>
+
+<link rel="stylesheet"
+href="../assets/css/common.css">
+
+<link rel="stylesheet"
+href="../assets/css/finished.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+
+            <li>
+                <a href="finished.html"
+                class="active">
+                📦 Finished
+                </a>
+            </li>
+
+            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                onclick="toggleSidebar()">
+                ☰
+                </div>
+
+                <h2>
+                    Finished Goods
+                </h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                type="text"
+                class="search-box"
+                placeholder="Search Finished Goods">
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Entry -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+
+                    Finished Goods Entry
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            FG Number
+                        </label>
+
+                        <input
+                        type="text"
+                        id="fgNo"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Entry Date
+                        </label>
+
+                        <input
+                        type="date"
+                        id="fgDate"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Style Name
+                        </label>
+
+                        <input
+                        type="text"
+                        id="styleName"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            SKU
+                        </label>
+
+                        <input
+                        type="text"
+                        id="sku"
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- QC Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        QC & Packing
+                    </h3>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="addFinishedRow()">
+
+                    + Add Row
+
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="finishedTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Size</th>
+
+                            <th>Qty</th>
+
+                            <th>QC Pass</th>
+
+                            <th>QC Reject</th>
+
+                            <th>Packed Qty</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="finishedBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="summary-grid mt-20">
+
+                <div class="card">
+
+                    <h4>
+                        Total Qty
+                    </h4>
+
+                    <h2 id="totalQty">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>
+                        QC Pass
+                    </h4>
+
+                    <h2 id="totalPass">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>
+                        QC Reject
+                    </h4>
+
+                    <h2 id="totalReject">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>
+                        Packed Qty
+                    </h4>
+
+                    <h2 id="totalPacked">
+                        0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Action -->
+
+            <div class="card mt-20">
+
+                <div class="action-buttons">
+
+                    <button
+                    class="btn btn-success"
+                    onclick="saveFinished()">
+
+                    Save Entry
+
+                    </button>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="clearFinishedForm()">
+
+                    Clear
+
+                    </button>
+
+                    <button
+                    class="btn btn-danger"
+                    onclick="printFinished()">
+
+                    Print
+
+                    </button>
+
+                    <button
+                    class="btn btn-success"
+                    onclick="transferInventory()">
+
+                    Transfer Inventory
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Finished History
+                    </h3>
+
+                    <input
+                    type="text"
+                    id="finishedSearch"
+                    class="form-control history-search"
+                    placeholder="Search...">
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>FG No</th>
+
+                            <th>Style</th>
+
+                            <th>Packed Qty</th>
+
+                            <th>SKU</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="finishedHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+
+                                    No Record Found
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/finished.js"></script>
+
+</body>
+</html>
