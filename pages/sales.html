@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Sales Management - KONE ERP</title>
+
+<link rel="stylesheet"
+href="../assets/css/common.css">
+
+<link rel="stylesheet"
+href="../assets/css/sales.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li><a href="finished.html">📦 Finished</a></li>
+            <li><a href="inventory.html">📋 Inventory</a></li>
+
+            <li>
+                <a href="sales.html"
+                class="active">
+                💰 Sales
+                </a>
+            </li>
+
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                onclick="toggleSidebar()">
+                ☰
+                </div>
+
+                <h2>
+                    Sales Management
+                </h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                type="text"
+                class="search-box"
+                placeholder="Search Invoice">
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Invoice Header -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+
+                    Sales Invoice
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            Invoice No
+                        </label>
+
+                        <input
+                        type="text"
+                        id="invoiceNo"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Invoice Date
+                        </label>
+
+                        <input
+                        type="date"
+                        id="invoiceDate"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Customer Name
+                        </label>
+
+                        <input
+                        type="text"
+                        id="customerName"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Mobile Number
+                        </label>
+
+                        <input
+                        type="text"
+                        id="customerMobile"
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Product Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Product Details
+                    </h3>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="addSalesRow()">
+
+                    + Add Product
+
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="salesTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="salesBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Billing Summary -->
+
+            <div class="card mt-20">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            Sub Total
+                        </label>
+
+                        <input
+                        id="subTotal"
+                        readonly
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Discount
+                        </label>
+
+                        <input
+                        id="discount"
+                        value="0"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            GST %
+                        </label>
+
+                        <input
+                        id="gst"
+                        value="5"
+                        class="form-control">
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>
+                            Grand Total
+                        </label>
+
+                        <input
+                        id="grandTotal"
+                        readonly
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Payment -->
+
+            <div class="card mt-20">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label>
+                            Payment Mode
+                        </label>
+
+                        <select
+                        id="paymentMode"
+                        class="form-control">
+
+                            <option>Cash</option>
+                            <option>UPI</option>
+                            <option>Card</option>
+                            <option>Bank Transfer</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+
+            <div class="card mt-20">
+
+                <div class="action-buttons">
+
+                    <button
+                    class="btn btn-success"
+                    onclick="saveSale()">
+
+                    Save Invoice
+
+                    </button>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="clearSalesForm()">
+
+                    Clear
+
+                    </button>
+
+                    <button
+                    class="btn btn-danger"
+                    onclick="printInvoice()">
+
+                    Print Invoice
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- Sales History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Sales History
+                    </h3>
+
+                    <input
+                    type="text"
+                    id="salesSearch"
+                    class="form-control history-search"
+                    placeholder="Search Invoice">
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Invoice</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="salesHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+
+                                    No Record Found
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/sales.js"></script>
+
+</body>
+</html>
