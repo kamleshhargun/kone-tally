@@ -1,0 +1,339 @@
+/* =========================
+   Inventory Module CSS
+   ========================= */
+
+.section-title{
+
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:20px;
+    color:var(--text);
+
+}
+
+/* =========================
+   Summary Cards
+   ========================= */
+
+.summary-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+}
+
+.summary-grid .card{
+
+    text-align:center;
+    transition:.3s;
+
+}
+
+.summary-grid .card:hover{
+
+    transform:
+    translateY(-4px);
+
+}
+
+.summary-grid h4{
+
+    color:var(--muted);
+    margin-bottom:10px;
+    font-size:14px;
+
+}
+
+.summary-grid h2{
+
+    font-size:28px;
+    font-weight:700;
+    color:var(--primary);
+
+}
+
+#lowStock{
+
+    color:#dc2626;
+
+}
+
+#inventoryValue{
+
+    color:#16a34a;
+
+}
+
+/* =========================
+   Table Header
+   ========================= */
+
+.table-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:15px;
+
+    margin-bottom:15px;
+
+}
+
+.table-header h3{
+
+    font-size:18px;
+    font-weight:600;
+
+}
+
+/* =========================
+   Inventory Table
+   ========================= */
+
+#inventoryTable{
+
+    min-width:1200px;
+
+}
+
+#inventoryTable input,
+#inventoryTable select{
+
+    width:100%;
+    padding:10px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    outline:none;
+
+}
+
+#inventoryTable input:focus,
+#inventoryTable select:focus{
+
+    border-color:var(--primary);
+
+}
+
+/* =========================
+   Status Badges
+   ========================= */
+
+.stock-good{
+
+    background:#dcfce7;
+    color:#166534;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.stock-low{
+
+    background:#fee2e2;
+    color:#991b1b;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.stock-medium{
+
+    background:#fef3c7;
+    color:#92400e;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+/* =========================
+   History Search
+   ========================= */
+
+.history-search{
+
+    width:260px;
+
+}
+
+/* =========================
+   Movement Types
+   ========================= */
+
+.movement-in{
+
+    color:#16a34a;
+    font-weight:700;
+
+}
+
+.movement-out{
+
+    color:#dc2626;
+    font-weight:700;
+
+}
+
+/* =========================
+   Inventory Row Animation
+   ========================= */
+
+.inventory-row{
+
+    animation:
+    inventoryFade .25s ease;
+
+}
+
+@keyframes inventoryFade{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(10px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0);
+
+    }
+
+}
+
+/* =========================
+   Empty State
+   ========================= */
+
+.empty-state{
+
+    text-align:center;
+
+    padding:30px;
+
+    color:var(--muted);
+
+}
+
+/* =========================
+   Print Layout
+   ========================= */
+
+@media print{
+
+    .sidebar,
+    .navbar,
+    .menu-btn,
+    .btn{
+
+        display:none !important;
+
+    }
+
+    .main{
+
+        margin:0 !important;
+
+        width:100% !important;
+
+    }
+
+}
+
+/* =========================
+   Tablet
+   ========================= */
+
+@media(max-width:992px){
+
+    .table-header{
+
+        flex-direction:column;
+
+        align-items:stretch;
+
+    }
+
+    .history-search{
+
+        width:100%;
+
+    }
+
+}
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media(max-width:768px){
+
+    .summary-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .table-header{
+
+        flex-direction:column;
+
+    }
+
+    .history-search{
+
+        width:100%;
+
+    }
+
+}
+
+/* =========================
+   Small Mobile
+   ========================= */
+
+@media(max-width:480px){
+
+    .card{
+
+        padding:16px;
+
+    }
+
+    .summary-grid h2{
+
+        font-size:24px;
+
+    }
+
+}
