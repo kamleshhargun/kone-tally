@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Cutting - KONE ERP</title>
+
+<link rel="stylesheet" href="../assets/css/common.css">
+<link rel="stylesheet" href="../assets/css/cutting.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+
+            <li>
+                <a href="cutting.html" class="active">
+                    ✂️ Cutting
+                </a>
+            </li>
+
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li><a href="finished.html">📦 Finished</a></li>
+            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                     onclick="toggleSidebar()">
+                    ☰
+                </div>
+
+                <h2>Cutting Management</h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                    type="text"
+                    class="search-box"
+                    placeholder="Search Cutting..."
+                >
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Cutting Details -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+                    Cutting Entry
+                </h3>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Cutting No
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cuttingNo"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Cutting Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="cuttingDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Style Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="styleName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Fabric Name
+                        </label>
+
+                        <select
+                            id="fabricSelect"
+                            class="form-control">
+                        </select>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Cutting Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>Size Wise Cutting</h3>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="addCuttingRow()">
+                        + Add Row
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="cuttingTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Size</th>
+
+                            <th>Qty</th>
+
+                            <th>Consumption</th>
+
+                            <th>Total Meter</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="cuttingBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="summary-grid mt-20">
+
+                <div class="card">
+
+                    <h4>Total Qty</h4>
+
+                    <h2 id="totalQty">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Meter Used</h4>
+
+                    <h2 id="totalMeterUsed">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Fabric Balance</h4>
+
+                    <h2 id="fabricBalance">
+                        0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+
+            <div class="card mt-20">
+
+                <div class="action-buttons">
+
+                    <button
+                        class="btn btn-success"
+                        onclick="saveCutting()">
+                        Save Cutting
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="clearCuttingForm()">
+                        Clear
+                    </button>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="printCutting()">
+                        Print
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Cutting History
+                    </h3>
+
+                    <input
+                        type="text"
+                        id="cuttingSearch"
+                        class="form-control history-search"
+                        placeholder="Search..."
+                    >
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>Cutting No</th>
+
+                            <th>Style</th>
+
+                            <th>Qty</th>
+
+                            <th>Meter Used</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="cuttingHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No Record Found
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/cutting.js"></script>
+
+</body>
+</html>
