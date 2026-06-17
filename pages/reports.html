@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Reports & Analytics - KONE ERP</title>
+
+<link rel="stylesheet"
+href="../assets/css/common.css">
+
+<link rel="stylesheet"
+href="../assets/css/reports.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li><a href="finished.html">📦 Finished</a></li>
+            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+
+            <li>
+                <a href="reports.html"
+                class="active">
+                📊 Reports
+                </a>
+            </li>
+
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                onclick="toggleSidebar()">
+
+                ☰
+
+                </div>
+
+                <h2>
+
+                    Reports & Analytics
+
+                </h2>
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Filters -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+
+                    Report Filters
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div>
+
+                        <label>
+                            From Date
+                        </label>
+
+                        <input
+                        type="date"
+                        id="fromDate"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>
+                            To Date
+                        </label>
+
+                        <input
+                        type="date"
+                        id="toDate"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>
+                            Report Type
+                        </label>
+
+                        <select
+                        id="reportType"
+                        class="form-control">
+
+                            <option value="all">
+                                All Reports
+                            </option>
+
+                            <option value="fabric">
+                                Fabric
+                            </option>
+
+                            <option value="cutting">
+                                Cutting
+                            </option>
+
+                            <option value="stitching">
+                                Stitching
+                            </option>
+
+                            <option value="inventory">
+                                Inventory
+                            </option>
+
+                            <option value="sales">
+                                Sales
+                            </option>
+
+                            <option value="returns">
+                                Returns
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div>
+
+                        <label>&nbsp;</label>
+
+                        <button
+                        class="btn btn-primary"
+                        onclick="generateReport()">
+
+                        Generate Report
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- KPI Cards -->
+
+            <div class="summary-grid mt-20">
+
+                <div class="card">
+
+                    <h4>Total Sales</h4>
+
+                    <h2 id="totalSales">
+                        ₹0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Orders</h4>
+
+                    <h2 id="totalOrders">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Returns</h4>
+
+                    <h2 id="totalReturns">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Inventory Value</h4>
+
+                    <h2 id="inventoryValue">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Report Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+
+                        Report Data
+
+                    </h3>
+
+                    <div>
+
+                        <button
+                        class="btn btn-success"
+                        onclick="exportExcel()">
+
+                        Export Excel
+
+                        </button>
+
+                        <button
+                        class="btn btn-danger"
+                        onclick="printReport()">
+
+                        Print
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Reference</th>
+                            <th>Module</th>
+                            <th>Details</th>
+                            <th>Amount</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="reportTable">
+
+                            <tr>
+
+                                <td colspan="5">
+
+                                    No Data Available
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Activity Log -->
+
+            <div class="card mt-20">
+
+                <h3>
+
+                    Recent Activity
+
+                </h3>
+
+                <div id="activityLog">
+
+                    No Activity Found
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/reports.js"></script>
+
+</body>
+
+</html>
