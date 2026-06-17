@@ -1,0 +1,303 @@
+/* =========================
+   Dashboard CSS
+   ========================= */
+
+/* Page Title */
+
+.page-title{
+
+    font-size:28px;
+
+    font-weight:700;
+
+    margin-bottom:20px;
+
+}
+
+/* Dashboard Cards */
+
+.cards{
+
+    margin-bottom:25px;
+
+}
+
+.card{
+
+    transition:all .25s ease;
+
+}
+
+.card:hover{
+
+    transform:translateY(-4px);
+
+    box-shadow:
+    0 12px 24px rgba(0,0,0,.08);
+
+}
+
+.card-value{
+
+    color:var(--primary);
+
+}
+
+/* Utility */
+
+.mt-20{
+
+    margin-top:20px;
+
+}
+
+.mt-30{
+
+    margin-top:30px;
+
+}
+
+/* Quick Actions */
+
+.quick-actions{
+
+    display:flex;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}
+
+.quick-actions .btn{
+
+    min-width:140px;
+
+}
+
+/* Section Header */
+
+.section-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:15px;
+
+}
+
+.section-header h3{
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+/* Tables */
+
+.table-wrapper{
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+}
+
+table{
+
+    min-width:700px;
+
+}
+
+thead{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:10;
+
+}
+
+th{
+
+    font-size:14px;
+
+    font-weight:600;
+
+    white-space:nowrap;
+
+}
+
+td{
+
+    font-size:14px;
+
+    white-space:nowrap;
+
+}
+
+/* Activity Table */
+
+#activityTable tr td{
+
+    vertical-align:middle;
+
+}
+
+/* Low Stock */
+
+.low-stock td:nth-child(3){
+
+    font-weight:700;
+
+    color:var(--danger);
+
+}
+
+/* Dashboard Widgets */
+
+.widget-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:20px;
+
+    margin-top:20px;
+
+}
+
+.widget{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    box-shadow:var(--shadow);
+
+    min-height:250px;
+
+}
+
+.widget h3{
+
+    margin-bottom:15px;
+
+}
+
+/* Chart Placeholder */
+
+.chart-placeholder{
+
+    height:220px;
+
+    border:2px dashed var(--border);
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:var(--muted);
+
+}
+
+/* Summary Box */
+
+.summary-box{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px 0;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.summary-box:last-child{
+
+    border-bottom:none;
+
+}
+
+.summary-box .value{
+
+    font-weight:700;
+
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+    .widget-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .page-title{
+
+        font-size:22px;
+
+    }
+
+    .quick-actions{
+
+        flex-direction:column;
+
+    }
+
+    .quick-actions .btn{
+
+        width:100%;
+
+    }
+
+    table{
+
+        min-width:600px;
+
+    }
+
+}
+
+/* Small Mobile */
+
+@media(max-width:480px){
+
+    .card{
+
+        padding:16px;
+
+    }
+
+    .card-value{
+
+        font-size:26px;
+
+    }
+
+    .navbar h2{
+
+        font-size:18px;
+
+    }
+
+}
