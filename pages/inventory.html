@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Inventory Management - KONE ERP</title>
+
+<link rel="stylesheet"
+href="../assets/css/common.css">
+
+<link rel="stylesheet"
+href="../assets/css/inventory.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+
+            KONE ERP
+
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li><a href="finished.html">📦 Finished</a></li>
+
+            <li>
+                <a href="inventory.html"
+                class="active">
+                📋 Inventory
+                </a>
+            </li>
+
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                onclick="toggleSidebar()">
+                ☰
+                </div>
+
+                <h2>
+
+                    Inventory Management
+
+                </h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                type="text"
+                class="search-box"
+                placeholder="Search SKU, Style...">
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Stock Summary -->
+
+            <div class="summary-grid">
+
+                <div class="card">
+
+                    <h4>Total SKU</h4>
+
+                    <h2 id="totalSku">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Stock</h4>
+
+                    <h2 id="totalStock">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Low Stock</h4>
+
+                    <h2 id="lowStock">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Inventory Value</h4>
+
+                    <h2 id="inventoryValue">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Inventory Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Inventory Stock
+                    </h3>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="addInventoryRow()">
+
+                    + Add Stock
+
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="inventoryTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+
+                            <th>Style</th>
+
+                            <th>Size</th>
+
+                            <th>Stock Qty</th>
+
+                            <th>MRP</th>
+
+                            <th>Value</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="inventoryBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Stock Movement -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+
+                        Stock Movement
+
+                    </h3>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>SKU</th>
+
+                            <th>Type</th>
+
+                            <th>Qty</th>
+
+                            <th>Remark</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="movementHistory">
+
+                            <tr>
+
+                                <td colspan="5">
+
+                                    No Record Found
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Inventory History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+
+                        Inventory History
+
+                    </h3>
+
+                    <input
+                    type="text"
+                    id="inventorySearch"
+                    class="form-control history-search"
+                    placeholder="Search Inventory">
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>SKU</th>
+
+                            <th>Style</th>
+
+                            <th>Stock</th>
+
+                            <th>MRP</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="inventoryHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+
+                                    No Record Found
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/inventory.js"></script>
+
+</body>
+</html>
