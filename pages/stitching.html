@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Stitching - KONE ERP</title>
+
+<link rel="stylesheet" href="../assets/css/common.css">
+<link rel="stylesheet" href="../assets/css/stitching.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+
+            <li>
+                <a href="stitching.html" class="active">
+                    🪡 Stitching
+                </a>
+            </li>
+
+            <li><a href="finished.html">📦 Finished</a></li>
+            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                     onclick="toggleSidebar()">
+                    ☰
+                </div>
+
+                <h2>Stitching Management</h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                    type="text"
+                    class="search-box"
+                    placeholder="Search Stitching..."
+                >
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Stitching Entry -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+                    Stitching Entry
+                </h3>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Stitching No
+                        </label>
+
+                        <input
+                            type="text"
+                            id="stitchingNo"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Stitching Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="stitchingDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Style Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="styleName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Karigar / Master
+                        </label>
+
+                        <input
+                            type="text"
+                            id="karigarName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Production Table -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Production Details
+                    </h3>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="addStitchingRow()">
+                        + Add Row
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="stitchingTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Size</th>
+                            <th>Issued Qty</th>
+                            <th>Completed Qty</th>
+                            <th>Pending Qty</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="stitchingBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="summary-grid mt-20">
+
+                <div class="card">
+
+                    <h4>Total Issued</h4>
+
+                    <h2 id="totalIssued">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Completed</h4>
+
+                    <h2 id="totalCompleted">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Pending</h4>
+
+                    <h2 id="totalPending">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Total Amount</h4>
+
+                    <h2 id="totalAmount">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+
+            <div class="card mt-20">
+
+                <div class="action-buttons">
+
+                    <button
+                        class="btn btn-success"
+                        onclick="saveStitching()">
+                        Save Stitching
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="clearStitchingForm()">
+                        Clear
+                    </button>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="printStitching()">
+                        Print
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Stitching History
+                    </h3>
+
+                    <input
+                        type="text"
+                        id="stitchingSearch"
+                        class="form-control history-search"
+                        placeholder="Search..."
+                    >
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+                            <th>Stitching No</th>
+                            <th>Karigar</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="stitchingHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+                                    No Record Found
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/stitching.js"></script>
+
+</body>
+</html>
