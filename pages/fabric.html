@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fabric Purchase - KONE ERP</title>
+
+<link rel="stylesheet" href="../assets/css/common.css">
+<link rel="stylesheet" href="../assets/css/fabric.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            KONE ERP
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+
+            <li>
+                <a href="fabric.html" class="active">
+                    🧵 Fabric
+                </a>
+            </li>
+
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+
+            <li><a href="finished.html">📦 Finished</a></li>
+
+            <li><a href="inventory.html">📋 Inventory</a></li>
+
+            <li><a href="sales.html">💰 Sales</a></li>
+
+            <li><a href="returns.html">↩ Returns</a></li>
+
+            <li><a href="reports.html">📊 Reports</a></li>
+
+            <li><a href="settings.html">⚙ Settings</a></li>
+
+        </ul>
+
+    </aside>
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <!-- Navbar -->
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                     onclick="toggleSidebar()">
+                    ☰
+                </div>
+
+                <h2>Fabric Purchase</h2>
+
+            </div>
+
+            <div class="nav-right">
+
+                <input
+                    type="text"
+                    class="search-box"
+                    placeholder="Search Invoice..."
+                >
+
+            </div>
+
+        </header>
+
+        <!-- Content -->
+
+        <section class="content">
+
+            <!-- Supplier Details -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+                    Supplier Information
+                </h3>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Party Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="partyName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Supplier Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="supplierName"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Invoice No
+                        </label>
+
+                        <input
+                            type="text"
+                            id="invoiceNo"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            Purchase Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="purchaseDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label class="form-label">
+                            GST %
+                        </label>
+
+                        <input
+                            type="number"
+                            id="gst"
+                            class="form-control"
+                            value="5"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Fabric Entry -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Fabric Entry
+                    </h3>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="addFabricRow()">
+                        + Add Row
+                    </button>
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table id="fabricTable">
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Fabric</th>
+
+                            <th>Color</th>
+
+                            <th>GSM</th>
+
+                            <th>Width</th>
+
+                            <th>Roll No</th>
+
+                            <th>Meter</th>
+
+                            <th>Rate</th>
+
+                            <th>Amount</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="fabricBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Summary -->
+
+            <div class="summary-grid mt-20">
+
+                <div class="card">
+
+                    <h4>Total Meter</h4>
+
+                    <h2 id="totalMeter">
+                        0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Subtotal</h4>
+
+                    <h2 id="subTotal">
+                        ₹0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>GST Amount</h4>
+
+                    <h2 id="gstAmount">
+                        ₹0
+                    </h2>
+
+                </div>
+
+                <div class="card">
+
+                    <h4>Grand Total</h4>
+
+                    <h2 id="grandTotal">
+                        ₹0
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+
+            <div class="card mt-20">
+
+                <div class="action-buttons">
+
+                    <button
+                        class="btn btn-success"
+                        onclick="saveFabric()">
+                        Save Purchase
+                    </button>
+
+                    <button
+                        class="btn btn-primary"
+                        onclick="clearForm()">
+                        Clear Form
+                    </button>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="printPurchase()">
+                        Print
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- Purchase History -->
+
+            <div class="card mt-20">
+
+                <div class="table-header">
+
+                    <h3>
+                        Purchase History
+                    </h3>
+
+                    <input
+                        type="text"
+                        id="historySearch"
+                        class="form-control history-search"
+                        placeholder="Search..."
+                    >
+
+                </div>
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                        <tr>
+
+                            <th>Date</th>
+
+                            <th>Invoice</th>
+
+                            <th>Party</th>
+
+                            <th>Total Meter</th>
+
+                            <th>Grand Total</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                        </thead>
+
+                        <tbody id="purchaseHistory">
+
+                            <tr>
+
+                                <td colspan="6">
+
+                                    No Purchase Found
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/fabric.js"></script>
+
+</body>
+</html>
