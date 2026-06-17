@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Settings - KONE ERP</title>
+
+<link rel="stylesheet"
+href="../assets/css/common.css">
+
+<link rel="stylesheet"
+href="../assets/css/settings.css">
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+
+            KONE ERP
+
+        </div>
+
+        <ul>
+
+            <li><a href="../index.html">🏠 Dashboard</a></li>
+            <li><a href="fabric.html">🧵 Fabric</a></li>
+            <li><a href="cutting.html">✂️ Cutting</a></li>
+            <li><a href="stitching.html">🪡 Stitching</a></li>
+            <li><a href="finished.html">📦 Finished</a></li>
+            <li><a href="inventory.html">📋 Inventory</a></li>
+            <li><a href="sales.html">💰 Sales</a></li>
+            <li><a href="returns.html">↩ Returns</a></li>
+            <li><a href="reports.html">📊 Reports</a></li>
+
+            <li>
+                <a href="settings.html"
+                class="active">
+                ⚙ Settings
+                </a>
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="navbar">
+
+            <div class="nav-left">
+
+                <div class="menu-btn"
+                onclick="toggleSidebar()">
+
+                ☰
+
+                </div>
+
+                <h2>
+
+                    ERP Settings
+
+                </h2>
+
+            </div>
+
+        </header>
+
+        <section class="content">
+
+            <!-- Company Settings -->
+
+            <div class="card">
+
+                <h3 class="section-title">
+
+                    Company Settings
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div>
+
+                        <label>Company Name</label>
+
+                        <input
+                        type="text"
+                        id="companyName"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>GST Number</label>
+
+                        <input
+                        type="text"
+                        id="gstNo"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>Mobile Number</label>
+
+                        <input
+                        type="text"
+                        id="companyMobile"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>Email</label>
+
+                        <input
+                        type="email"
+                        id="companyEmail"
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Invoice Settings -->
+
+            <div class="card mt-20">
+
+                <h3 class="section-title">
+
+                    Invoice Settings
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div>
+
+                        <label>Invoice Prefix</label>
+
+                        <input
+                        type="text"
+                        id="invoicePrefix"
+                        value="INV"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>Default GST %</label>
+
+                        <input
+                        type="number"
+                        id="defaultGST"
+                        value="5"
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Google Sheet Config -->
+
+            <div class="card mt-20">
+
+                <h3 class="section-title">
+
+                    Google Sheets Integration
+
+                </h3>
+
+                <div class="form-grid">
+
+                    <div>
+
+                        <label>Spreadsheet ID</label>
+
+                        <input
+                        type="text"
+                        id="sheetId"
+                        class="form-control">
+
+                    </div>
+
+                    <div>
+
+                        <label>Apps Script URL</label>
+
+                        <input
+                        type="text"
+                        id="scriptUrl"
+                        class="form-control">
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Backup -->
+
+            <div class="card mt-20">
+
+                <h3 class="section-title">
+
+                    Backup & Restore
+
+                </h3>
+
+                <div class="action-buttons">
+
+                    <button
+                    class="btn btn-success"
+                    onclick="backupData()">
+
+                    Backup Data
+
+                    </button>
+
+                    <button
+                    class="btn btn-primary"
+                    onclick="restoreData()">
+
+                    Restore Data
+
+                    </button>
+
+                    <input
+                    type="file"
+                    id="restoreFile"
+                    hidden>
+
+                </div>
+
+            </div>
+
+            <!-- Save -->
+
+            <div class="card mt-20">
+
+                <button
+                class="btn btn-success"
+                onclick="saveSettings()">
+
+                Save Settings
+
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/settings.js"></script>
+
+</body>
+</html>
